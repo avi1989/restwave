@@ -2,14 +2,43 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:RealRestClient.ViewModels.Responses"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="RealRestClient.Views.Controls.ResponseView">
+             x:Class="RealRestClient.Views.Controls.ResponseView"
+             x:DataType="vm:ResponseViewModel">
+
+    <Design.DataContext>
+        <vm:ResponseViewModel />
+    </Design.DataContext>
+
     <StackPanel>
         <TextBlock Text="Response"></TextBlock>
-        <TabStrip>
-            <TabItem Header="Parms"></TabItem>
-            <TabItem Header="Body"></TabItem>
-            <TabItem Header="Header"></TabItem>
-        </TabStrip>
+        <!-- Add a debug TextBlock to see if DataContext is working -->
+        <TabControl>
+            <TabItem Header="Response">
+                <SelectableTextBlock Text="{Binding Body}"></SelectableTextBlock>
+            </TabItem>
+            <TabItem Header="Headers">
+                <ItemsControl ItemsSource="{Binding Headers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition SharedSizeGroup="NameColumn" Width="Auto" MinWidth="100" />
+                                    <ColumnDefinition SharedSizeGroup="ValueColumn" Width="*" MinWidth="200" />
+                                </Grid.ColumnDefinitions>
+                                <Border BorderBrush="#DDD" BorderThickness="1,1,1,1" Grid.Column="0">
+                                    <TextBlock Text="{Binding Key}" Padding="8,4" />
+                                </Border>
+                                <Border BorderBrush="#DDD" BorderThickness="0,1,1,1" Grid.Column="1">
+                                    <TextBlock Text="{Binding Value}" Padding="8,4" TextWrapping="Wrap" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </TabItem>
+        </TabControl>
     </StackPanel>
 </UserControl>

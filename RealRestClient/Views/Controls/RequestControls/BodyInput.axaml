@@ -13,25 +13,26 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <TextBlock Text="Body Input Test" Grid.Row="0"/>
-        <avaloniaedit:TextEditor Grid.Row="1"
-                       Name="JsonEditor"
-                       FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
-                       HorizontalScrollBarVisibility="Auto"
-                       VerticalScrollBarVisibility="Auto"
-                       HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch"
-                       MinHeight="200"
-                       ShowLineNumbers="True"></avaloniaedit:TextEditor>
+        <avaloniaedit:TextEditor
+            Grid.Row="1"
+            Name="JsonEditor"
+            FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
+            HorizontalScrollBarVisibility="Auto"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            MinHeight="200"
+            ShowLineNumbers="True">
+        </avaloniaedit:TextEditor>
 
-        <Border Grid.Row="2" 
+        <Border Grid.Row="2"
                 BorderBrush="{DynamicResource SystemControlErrorTextForegroundBrush}"
                 BorderThickness="1"
                 CornerRadius="3"
                 Padding="8"
                 Margin="0,5,0,0"
                 IsVisible="{Binding HasValidationError}">
-            <TextBlock Text="{Binding ValidationError}" 
+            <TextBlock Text="{Binding ValidationError}"
                        Foreground="{DynamicResource SystemControlErrorTextForegroundBrush}"
                        TextWrapping="Wrap" />
         </Border>

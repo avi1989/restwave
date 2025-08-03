@@ -1,10 +1,13 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using RealRestClient.ViewModels;
-using MainWindowViewModel = RealRestClient.ViewModels.Requests.MainWindowViewModel;
+using MainWindowViewModel = RealRestClient.ViewModels.MainWindowViewModel;
 
 namespace RealRestClient.Views;
 
@@ -21,16 +24,46 @@ public partial class MainWindow : Window
 
     private async void BtnInvoke_OnClick(object? sender, RoutedEventArgs e)
     {
-        // var response = await HttpClient.SendAsync(new HttpRequestMessage(new HttpMethod(this.ViewModel.Method), this.ViewModel.Url));
-        // if (response.IsSuccessStatusCode)
-        // {
-        //     var content = await response.Content.ReadAsStringAsync();
-        //     Debug.WriteLine($"Response: {content}");
-        // }
-        // else
-        // {
-        //     Debug.WriteLine($"Error: {response.StatusCode}");
-        // }
-        Debug.WriteLine($"Method: {this.ViewModel.Method}, Url: {this.ViewModel.Url}, Headers: {string.Join(", ", this.ViewModel.Request.HeadersInput.Headers.Select(h => $"{h.Key}: {h.Value}"))}");
+        this.ViewModel.Response.Body = "Testing binding...";
+        Debug.WriteLine($"Set Body to: {this.ViewModel.Response.Body}");
+    
+        // Add a small delay to see if the test value appears
+        await Task.Delay(1000);
+    
+        try
+        {
+            var request = new HttpRequestMessage(new HttpMethod(this.ViewModel.Request.Method), this.ViewModel.Request.Url);
+            foreach (var header in this.ViewModel.Request.HeadersInput.Headers)
+            {
+                request.Headers.Add(header.Key, header.Value);
+            }
+        
+            if (this.ViewModel.Request.IsBodyEnabled)
+            {
+                request.Content = new StringContent(this.ViewModel.Request.JsonBodyInput.JsonText, System.Text.Encoding.UTF8, "application/json");
+            }
+        
+            var response = await HttpClient.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+            this.ViewModel.Response.StatusCode = response.StatusCode.ToString();
+
+            foreach (var header in response.Headers)
+            {
+                var newItem = new KeyValuePair<string, string>(header.Key, string.Join(", ", header.Value.ToList()));
+                this.ViewModel.Response.Headers.Add(newItem);
+            }
+            
+            this.ViewModel.Response.Body = response.IsSuccessStatusCode 
+                ? content 
+                : $"Error {response.StatusCode}: {content}";
+            
+            Debug.WriteLine($"Final Body value: {this.ViewModel.Response.Body}");
+        }
+        catch (Exception ex)
+        {
+            this.ViewModel.Response.Body = $"Exception: {ex.Message}";
+            Debug.WriteLine($"Exception: {ex.Message}");
+        }
+
     }
 }

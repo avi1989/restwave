@@ -6,7 +6,7 @@ namespace RealRestClient.ViewModels.Requests;
 public partial class JsonBodyInputViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private string _jsonText = string.Empty;
+    private string _jsonText = "{\n  \"key\": \"value\"\n}";
 
     [ObservableProperty]
     private string _validationError;

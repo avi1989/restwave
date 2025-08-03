@@ -6,7 +6,7 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using RealRestClient.ViewModels;
 using RealRestClient.Views;
-using MainWindowViewModel = RealRestClient.ViewModels.Requests.MainWindowViewModel;
+using MainWindowViewModel = RealRestClient.ViewModels.MainWindowViewModel;
 
 namespace RealRestClient;
 

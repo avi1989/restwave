@@ -4,8 +4,14 @@ namespace RealRestClient.ViewModels.Requests;
 
 public partial class RequestViewModel : ViewModelBase
 {
-    [ObservableProperty] 
-    private HeadersInputViewModel headersInput = new();
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsBodyEnabled))]
+    private string method = "POST";
+
+    [ObservableProperty] private string url = "https://echo.zuplo.io";
+
+    [ObservableProperty] private HeadersInputViewModel headersInput = new();
 
     [ObservableProperty] public JsonBodyInputViewModel jsonBodyInput = new();
+
+    public bool IsBodyEnabled => Method is "POST" or "PUT";
 }

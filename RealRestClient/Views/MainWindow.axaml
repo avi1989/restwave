@@ -8,14 +8,14 @@
         xmlns:requests="clr-namespace:RealRestClient.ViewModels.Requests"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="RealRestClient.Views.MainWindow"
-        x:DataType="requests:MainWindowViewModel"
+        x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="RealRestClient">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <requests:MainWindowViewModel />
+        <vm:MainWindowViewModel />
     </Design.DataContext>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -38,14 +38,14 @@
                 </SplitView.Pane>
                 <StackPanel HorizontalAlignment="Stretch" Margin="0 2 0 0 ">
                     <DockPanel>
-                        <ComboBox SelectedIndex="0" MaxDropDownHeight="100" DockPanel.Dock="Left" SelectedItem="{Binding Method, Mode=TwoWay}" SelectionBoxItem="{Binding Method}" ItemsSource="{Binding Methods}"/>
+                        <ComboBox SelectedIndex="0" MaxDropDownHeight="100" DockPanel.Dock="Left" SelectedItem="{Binding Request.Method, Mode=TwoWay}" SelectionBoxItem="{Binding Request.Method}" ItemsSource="{Binding Methods}"/>
                         <Button Name="BtnInvoke" Content="Send" HorizontalAlignment="Right" Margin="5 0 0 0" DockPanel.Dock="Right" Click="BtnInvoke_OnClick"></Button>
-                        <TextBox HorizontalAlignment="Stretch" Text="{Binding Url}"></TextBox>
+                        <TextBox HorizontalAlignment="Stretch" Text="{Binding Request.Url}"></TextBox>
                     </DockPanel>
 
                     <UniformGrid Rows="1" Columns="2">
                         <requestControls:RequestView DockPanel.Dock="Left" VerticalAlignment="Stretch" DataContext="{Binding Request}"/>
-                        <controls:ResponseView DockPanel.Dock="Right" VerticalAlignment="Stretch" />
+                        <controls:ResponseView DockPanel.Dock="Right" VerticalAlignment="Stretch" DataContext="{Binding Response}"/>
                     </UniformGrid>
                 </StackPanel>
             </SplitView>

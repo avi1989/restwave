@@ -14,12 +14,12 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto,*">
-        <TextBlock Text="Request" Grid.Row="0"/>
+        <TextBlock Text="Request" Grid.Row="0" />
         <TabControl Grid.Row="1">
             <TabItem Header="Header">
                 <requestControls:HeadersInput DataContext="{Binding HeadersInput}"/>
             </TabItem>
-            <TabItem Header="Body">
+            <TabItem Header="Body" IsEnabled="{Binding IsBodyEnabled}">
                 <requestControls:BodyInput DataContext="{Binding JsonBodyInput}"/>
             </TabItem>
         </TabControl>
