@@ -6,6 +6,7 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using RealRestClient.ViewModels;
 using RealRestClient.Views;
+using MainWindowViewModel = RealRestClient.ViewModels.Requests.MainWindowViewModel;
 
 namespace RealRestClient;
 
@@ -23,6 +24,7 @@ public partial class App : Application
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
+            
             desktop.MainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel(),

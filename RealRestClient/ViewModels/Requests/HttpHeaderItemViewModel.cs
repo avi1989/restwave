@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace RealRestClient.ViewModels;
+namespace RealRestClient.ViewModels.Requests;
 
 public partial class HttpHeaderItemViewModel : ObservableObject
 {

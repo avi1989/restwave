@@ -5,11 +5,12 @@
              xmlns:controls="clr-namespace:RealRestClient.Views.Controls"
              xmlns:vm="clr-namespace:RealRestClient.ViewModels"
              xmlns:requestControls="clr-namespace:RealRestClient.Views.Controls.RequestControls"
+             xmlns:requests="clr-namespace:RealRestClient.ViewModels.Requests"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="RealRestClient.Views.Controls.RequestControls.RequestView"
-             x:DataType="vm:RequestViewModel">
+             x:DataType="requests:RequestViewModel">
     <Design.DataContext>
-        <vm:RequestViewModel />
+        <requests:RequestViewModel />
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto,*">
@@ -18,11 +19,8 @@
             <TabItem Header="Header">
                 <requestControls:HeadersInput DataContext="{Binding HeadersInput}"/>
             </TabItem>
-            <TabItem Header="Parms">
-                <TextBlock> Here be params </TextBlock>
-            </TabItem>
             <TabItem Header="Body">
-                <TextBlock> Here by boyd</TextBlock>
+                <requestControls:BodyInput DataContext="{Binding JsonBodyInput}"/>
             </TabItem>
         </TabControl>
     </Grid>

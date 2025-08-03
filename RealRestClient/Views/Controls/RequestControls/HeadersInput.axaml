@@ -3,12 +3,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:RealRestClient.ViewModels"
+             xmlns:requests="clr-namespace:RealRestClient.ViewModels.Requests"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="vm:HeadersInputViewModel"
+             x:DataType="requests:HeadersInputViewModel"
              x:Class="RealRestClient.Views.Controls.RequestControls.HeadersInput">
 
     <Design.DataContext>
-        <vm:HeadersInputViewModel />
+        <requests:HeadersInputViewModel />
     </Design.DataContext>
 
     <DockPanel>
@@ -28,7 +29,7 @@
                 </Grid>
                 <ItemsControl ItemsSource="{Binding Headers}">
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type vm:HttpHeaderItemViewModel}">
+                        <DataTemplate DataType="{x:Type requests:HttpHeaderItemViewModel}">
                             <Grid ColumnDefinitions="1*,1*,Auto" Margin="0,0,0,0">
                                 <Border BorderBrush="#DDD" BorderThickness="1,0,0,1" Grid.Column="0">
                                     <TextBox Margin="0"

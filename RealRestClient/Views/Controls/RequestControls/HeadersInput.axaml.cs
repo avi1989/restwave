@@ -1,6 +1,8 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using RealRestClient.ViewModels;
+using HeadersInputViewModel = RealRestClient.ViewModels.Requests.HeadersInputViewModel;
+using HttpHeaderItemViewModel = RealRestClient.ViewModels.Requests.HttpHeaderItemViewModel;
 
 namespace RealRestClient.Views.Controls.RequestControls;
 

@@ -20,7 +20,9 @@
 
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml"/>
         <!-- Include external style files -->
         <StyleInclude Source="/Styles/ButtonStyles.axaml"/>
+        
     </Application.Styles>
 </Application>

@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace RealRestClient.ViewModels;
+namespace RealRestClient.ViewModels.Requests;
 
 public partial class HeadersInputViewModel : ViewModelBase
 {

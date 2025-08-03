@@ -4,6 +4,7 @@ using System.Net.Http;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using RealRestClient.ViewModels;
+using MainWindowViewModel = RealRestClient.ViewModels.Requests.MainWindowViewModel;
 
 namespace RealRestClient.Views;
 

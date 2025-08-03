@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace RealRestClient.ViewModels;
+namespace RealRestClient.ViewModels.Requests;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
