@@ -36,18 +36,30 @@
                 <SplitView.Pane>
                     <TextBlock Text="Sidebar" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </SplitView.Pane>
-                <StackPanel HorizontalAlignment="Stretch" Margin="0 2 0 0 ">
-                    <DockPanel>
-                        <ComboBox SelectedIndex="0" MaxDropDownHeight="100" DockPanel.Dock="Left" SelectedItem="{Binding Request.Method, Mode=TwoWay}" SelectionBoxItem="{Binding Request.Method}" ItemsSource="{Binding Methods}"/>
-                        <Button Name="BtnInvoke" Content="Send" HorizontalAlignment="Right" Margin="5 0 0 0" DockPanel.Dock="Right" Click="BtnInvoke_OnClick"></Button>
+                <DockPanel HorizontalAlignment="Stretch" Margin="0 2 0 0">
+                    <DockPanel DockPanel.Dock="Top">
+                        <ComboBox SelectedIndex="0" MaxDropDownHeight="100" DockPanel.Dock="Left"
+                                  SelectedItem="{Binding Request.Method, Mode=TwoWay}"
+                                  SelectionBoxItem="{Binding Request.Method}" ItemsSource="{Binding Methods}" />
+                        <Button Name="BtnInvoke" Content="{Binding SubmitButtonText}" HorizontalAlignment="Right" Margin="5 0 0 0"
+                                DockPanel.Dock="Right" Click="BtnInvoke_OnClick">
+                        </Button>
                         <TextBox HorizontalAlignment="Stretch" Text="{Binding Request.Url}"></TextBox>
                     </DockPanel>
 
-                    <UniformGrid Rows="1" Columns="2">
-                        <requestControls:RequestView DockPanel.Dock="Left" VerticalAlignment="Stretch" DataContext="{Binding Request}"/>
-                        <controls:ResponseView DockPanel.Dock="Right" VerticalAlignment="Stretch" DataContext="{Binding Response}"/>
-                    </UniformGrid>
-                </StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <requestControls:RequestView DockPanel.Dock="Left" VerticalAlignment="Stretch"
+                                                     DataContext="{Binding Request}" Grid.Column="0"/>
+                        <controls:ResponseView DockPanel.Dock="Right" VerticalAlignment="Stretch"
+                                               DataContext="{Binding Response}" Grid.Column="1"/>
+                    </Grid>
+                </DockPanel>
             </SplitView>
         </DockPanel>
     </DockPanel>

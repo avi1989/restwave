@@ -7,7 +7,7 @@ public partial class RequestViewModel : ViewModelBase
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsBodyEnabled))]
     private string method = "POST";
 
-    [ObservableProperty] private string url = "https://echo.zuplo.io";
+    [ObservableProperty] private string url = "https://echo.websocket.org/.sse";
 
     [ObservableProperty] private HeadersInputViewModel headersInput = new();
 

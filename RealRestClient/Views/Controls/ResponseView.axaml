@@ -11,34 +11,47 @@
         <vm:ResponseViewModel />
     </Design.DataContext>
 
-    <StackPanel>
-        <TextBlock Text="Response"></TextBlock>
-        <!-- Add a debug TextBlock to see if DataContext is working -->
+    <DockPanel>
+        <TextBlock Text="Response" DockPanel.Dock="Top"></TextBlock>
         <TabControl>
             <TabItem Header="Response">
-                <SelectableTextBlock Text="{Binding Body}"></SelectableTextBlock>
+                <Grid>
+                    <TextBox Text="{Binding Body}"
+                             IsReadOnly="True"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             Background="White"
+                             BorderThickness="1"
+                             BorderBrush="Gray"
+                             Padding="8"
+                             FontFamily="Consolas,Monaco,monospace" />
+                </Grid>
             </TabItem>
             <TabItem Header="Headers">
-                <ItemsControl ItemsSource="{Binding Headers}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0,0,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition SharedSizeGroup="NameColumn" Width="Auto" MinWidth="100" />
-                                    <ColumnDefinition SharedSizeGroup="ValueColumn" Width="*" MinWidth="200" />
-                                </Grid.ColumnDefinitions>
-                                <Border BorderBrush="#DDD" BorderThickness="1,1,1,1" Grid.Column="0">
-                                    <TextBlock Text="{Binding Key}" Padding="8,4" />
-                                </Border>
-                                <Border BorderBrush="#DDD" BorderThickness="0,1,1,1" Grid.Column="1">
-                                    <TextBlock Text="{Binding Value}" Padding="8,4" TextWrapping="Wrap" />
-                                </Border>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Headers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition SharedSizeGroup="NameColumn" Width="Auto" MinWidth="100" />
+                                        <ColumnDefinition SharedSizeGroup="ValueColumn" Width="*" MinWidth="200" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border BorderBrush="#DDD" BorderThickness="1,1,1,1" Grid.Column="0">
+                                        <TextBlock Text="{Binding Key}" Padding="8,4" />
+                                    </Border>
+                                    <Border BorderBrush="#DDD" BorderThickness="0,1,1,1" Grid.Column="1">
+                                        <TextBlock Text="{Binding Value}" Padding="8,4" TextWrapping="Wrap" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
-    </StackPanel>
+    </DockPanel>
 </UserControl>
