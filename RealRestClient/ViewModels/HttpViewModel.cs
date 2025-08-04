@@ -21,8 +21,12 @@ public partial class HttpViewModel : ViewModelBase
     [ObservableProperty] private ResponseViewModel _response;
     
     [ObservableProperty] private ObservableCollection<Node> _collections;
+    
+    [ObservableProperty] private Node? _selectedNode;
 
     public string SubmitButtonText => this.Response.IsLoading ? "Cancel" : "Invoke";
+    
+    public string SubmitButtonIcon => this.Response.IsLoading ? "◼" : "▶";
 
     public string[] Methods { get; } = ["GET", "PUT", "POST", "DELETE"];
     
@@ -34,6 +38,7 @@ public partial class HttpViewModel : ViewModelBase
             if (e.PropertyName == nameof(ResponseViewModel.IsLoading))
             {
                 OnPropertyChanged(nameof(SubmitButtonText));
+                OnPropertyChanged(nameof(SubmitButtonIcon));
             }
         };
     }

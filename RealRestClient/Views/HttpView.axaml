@@ -20,7 +20,7 @@
             <SplitView IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="300" VerticalAlignment="Stretch"
                        HorizontalAlignment="Stretch">
                 <SplitView.Pane>
-                    <TreeView ItemsSource="{Binding Collections}">
+                    <TreeView ItemsSource="{Binding Collections}" SelectedItem="{Binding SelectedNode}">
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding SubNodes}">
                                 <TextBlock Text="{Binding Title}"></TextBlock>
@@ -34,10 +34,19 @@
                         <ComboBox SelectedIndex="0" MaxDropDownHeight="100" DockPanel.Dock="Left"
                                   SelectedItem="{Binding Request.Method, Mode=TwoWay}"
                                   SelectionBoxItem="{Binding Request.Method}" ItemsSource="{Binding Methods}" />
-                        <Button Name="BtnInvoke" Content="{Binding SubmitButtonText}" HorizontalAlignment="Right" Margin="5 0 0 0"
-                                DockPanel.Dock="Right" Click="BtnInvoke_OnClick">
-                        </Button>
-                        <TextBox HorizontalAlignment="Stretch" Text="{Binding Request.Url}"></TextBox>
+                        <Grid HorizontalAlignment="Stretch">
+                            <TextBox HorizontalAlignment="Stretch" Text="{Binding Request.Url}" Padding="5,0,80,0"></TextBox>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4">
+                                <Button Name="BtnSave" Width="32" Height="28" Margin="0,0,4,0" Background="Transparent" BorderThickness="0"
+                                        Click="BtnSave_OnClick" ToolTip.Tip="Save Request">
+                                    <TextBlock Text="💾" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" />
+                                </Button>
+                                <Button Name="BtnInvoke" Width="32" Height="28" Background="Transparent" BorderThickness="0"
+                                        Click="BtnInvoke_OnClick" ToolTip.Tip="{Binding SubmitButtonText}">
+                                    <TextBlock Text="{Binding SubmitButtonIcon}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
                     </DockPanel>
 
 

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using RealRestClient.Models;
 using RealRestClient.Services;
@@ -33,6 +35,15 @@ public partial class HttpView : UserControl
         {
             this.ViewModel.Collections.Add(collection);
         }
+        
+        // Subscribe to selection changes
+        this.ViewModel.PropertyChanged += (sender, args) =>
+        {
+            if (args.PropertyName == nameof(HttpViewModel.SelectedNode))
+            {
+                OnSelectedNodeChanged();
+            }
+        };
     }
 
     public static HttpClient HttpClient { get; } = new();
@@ -111,6 +122,91 @@ public partial class HttpView : UserControl
         finally
         {
             this.ViewModel.Response.CompleteOperation(); // This sets IsLoading = false and cleans up
+        }
+    }
+
+    private async void BtnSave_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var requestsManager = new RequestsManager();
+        var selectedNode = this.ViewModel.SelectedNode;
+
+        try
+        {
+            if (selectedNode != null)
+            {
+                if (selectedNode.IsFolder)
+                {
+                    // If a folder (collection) is selected, prompt for a filename and save to that collection
+                    var saveDialog = new SaveRequestDialog();
+                    var topLevel = TopLevel.GetTopLevel(this) as Window;
+                    
+                    if (topLevel == null) return;
+                    
+                    var requestName = await saveDialog.ShowDialog<string?>(topLevel);
+                    
+                    if (!string.IsNullOrEmpty(requestName))
+                    {
+                        requestsManager.SaveRequestToCollection(this.ViewModel.Request, selectedNode.CollectionName!, requestName);
+                        RefreshCollections();
+                    }
+                }
+                else
+                {
+                    // If a file is selected, overwrite it
+                    if (!string.IsNullOrEmpty(selectedNode.FilePath))
+                    {
+                        requestsManager.OverwriteRequest(this.ViewModel.Request, selectedNode.FilePath);
+                        // No need to refresh collections since we're just overwriting
+                    }
+                }
+            }
+            else
+            {
+                // No selection, use the old behavior (save to default collection with dialog)
+                var saveDialog = new SaveRequestDialog();
+                var topLevel = TopLevel.GetTopLevel(this) as Window;
+                
+                if (topLevel == null) return;
+                
+                var result = await saveDialog.ShowDialog<string?>(topLevel);
+                
+                if (!string.IsNullOrEmpty(result))
+                {
+                    requestsManager.SaveRequest(this.ViewModel.Request, result);
+                    RefreshCollections();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle save error - you might want to show an error dialog
+            Debug.WriteLine($"Error saving request: {ex.Message}");
+        }
+    }
+
+    private void RefreshCollections()
+    {
+        this.ViewModel.Collections.Clear();
+        RequestsManager requestsManager = new();
+        var collections = requestsManager.GetCollections();
+        foreach (var collection in collections)
+        {
+            this.ViewModel.Collections.Add(collection);
+        }
+    }
+
+    private void OnSelectedNodeChanged()
+    {
+        var selectedNode = this.ViewModel.SelectedNode;
+        if (selectedNode != null && !selectedNode.IsFolder && !string.IsNullOrEmpty(selectedNode.FilePath))
+        {
+            // Load the request when a file is selected
+            var requestsManager = new RequestsManager();
+            var loadedRequest = requestsManager.LoadRequest(selectedNode.FilePath);
+            if (loadedRequest != null)
+            {
+                this.ViewModel.Request = loadedRequest;
+            }
         }
     }
 }
