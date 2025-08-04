@@ -6,6 +6,7 @@
              xmlns:request="clr-namespace:RealRestClient.Views.Request"
              xmlns:response="clr-namespace:RealRestClient.Views.Response"
              xmlns:request1="clr-namespace:RealRestClient.Views.Request"
+             xmlns:local="clr-namespace:RealRestClient.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="RealRestClient.Views.HttpView"
              x:DataType="viewModels:HttpViewModel">
@@ -20,10 +21,39 @@
             <SplitView IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="300" VerticalAlignment="Stretch"
                        HorizontalAlignment="Stretch">
                 <SplitView.Pane>
-                    <TreeView ItemsSource="{Binding Collections}" SelectedItem="{Binding SelectedNode}">
+                    <TreeView ItemsSource="{Binding Collections}" 
+                              SelectedItem="{Binding SelectedNode}"
+                              x:Name="CollectionsTreeView">
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding SubNodes}">
-                                <TextBlock Text="{Binding Title}"></TextBlock>
+                                <Border Background="Transparent"
+                                        x:Name="ItemBorder"
+                                        Padding="2"
+                                        CornerRadius="3">
+                                    <StackPanel Orientation="Horizontal">
+                                        <!-- Folder/File Icon -->
+                                        <TextBlock Text="{Binding IsFolder, Converter={x:Static local:FolderIconConverter.Instance}}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,4,0"
+                                                   FontSize="12"/>
+                                        <!-- Display Text -->
+                                        <TextBlock Text="{Binding Title}" 
+                                                   IsVisible="{Binding !IsEditing}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="2"/>
+                                        <!-- Edit TextBox -->
+                                        <TextBox Text="{Binding EditingText}"
+                                                 IsVisible="{Binding IsEditing}"
+                                                 x:Name="EditingTextBox"
+                                                 MinWidth="100"
+                                                 VerticalAlignment="Center"
+                                                 Margin="2"
+                                                 BorderThickness="1"
+                                                 Padding="2"
+                                                 KeyDown="EditingTextBox_KeyDown"
+                                                 LostFocus="EditingTextBox_LostFocus"/>
+                                    </StackPanel>
+                                </Border>
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>
                     </TreeView>

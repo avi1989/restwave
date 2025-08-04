@@ -136,4 +136,91 @@ public class RequestsManager
             return null;
         }
     }
+
+    public bool MoveFile(string sourceFilePath, string targetCollectionName)
+    {
+        try
+        {
+            if (!File.Exists(sourceFilePath))
+                return false;
+
+            var fileName = Path.GetFileName(sourceFilePath);
+            var targetCollectionPath = Path.Combine(this.config.RequestsDirectoryPath!, targetCollectionName);
+            
+            if (!Directory.Exists(targetCollectionPath))
+            {
+                Directory.CreateDirectory(targetCollectionPath);
+            }
+
+            var targetFilePath = Path.Combine(targetCollectionPath, fileName);
+            
+            // Avoid overwriting existing files
+            if (File.Exists(targetFilePath))
+            {
+                var baseName = Path.GetFileNameWithoutExtension(fileName);
+                var extension = Path.GetExtension(fileName);
+                var counter = 1;
+                
+                do
+                {
+                    fileName = $"{baseName}_{counter}{extension}";
+                    targetFilePath = Path.Combine(targetCollectionPath, fileName);
+                    counter++;
+                }
+                while (File.Exists(targetFilePath));
+            }
+
+            File.Move(sourceFilePath, targetFilePath);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public bool RenameFile(string filePath, string newName)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return false;
+
+            var directory = Path.GetDirectoryName(filePath)!;
+            var extension = Path.GetExtension(filePath);
+            var newFilePath = Path.Combine(directory, $"{newName}{extension}");
+            
+            if (File.Exists(newFilePath))
+                return false; // Don't overwrite existing files
+
+            File.Move(filePath, newFilePath);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public bool RenameCollection(string collectionPath, string newName)
+    {
+        try
+        {
+            if (!Directory.Exists(collectionPath))
+                return false;
+
+            var parentDirectory = Path.GetDirectoryName(collectionPath)!;
+            var newCollectionPath = Path.Combine(parentDirectory, newName);
+            
+            if (Directory.Exists(newCollectionPath))
+                return false; // Don't overwrite existing directories
+
+            Directory.Move(collectionPath, newCollectionPath);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
