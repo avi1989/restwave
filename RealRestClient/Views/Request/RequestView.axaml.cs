@@ -1,6 +1,6 @@
 ﻿using Avalonia.Controls;
 
-namespace RealRestClient.Views.Controls.RequestControls;
+namespace RealRestClient.Views.Request;
 
 public partial class RequestView : UserControl
 {

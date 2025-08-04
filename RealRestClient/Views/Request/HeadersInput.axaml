@@ -6,7 +6,7 @@
              xmlns:requests="clr-namespace:RealRestClient.ViewModels.Requests"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="requests:HeadersInputViewModel"
-             x:Class="RealRestClient.Views.Controls.RequestControls.HeadersInput">
+             x:Class="RealRestClient.Views.Request.HeadersInput">
 
     <Design.DataContext>
         <requests:HeadersInputViewModel />

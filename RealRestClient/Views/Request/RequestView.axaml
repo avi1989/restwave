@@ -2,12 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:controls="clr-namespace:RealRestClient.Views.Controls"
              xmlns:vm="clr-namespace:RealRestClient.ViewModels"
-             xmlns:requestControls="clr-namespace:RealRestClient.Views.Controls.RequestControls"
              xmlns:requests="clr-namespace:RealRestClient.ViewModels.Requests"
+             xmlns:request="clr-namespace:RealRestClient.Views.Request"
+             xmlns:request1="clr-namespace:RealRestClient.Views.Request"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="RealRestClient.Views.Controls.RequestControls.RequestView"
+             x:Class="RealRestClient.Views.Request.RequestView"
              x:DataType="requests:RequestViewModel">
     <Design.DataContext>
         <requests:RequestViewModel />
@@ -17,10 +17,10 @@
         <TextBlock Text="Request" Grid.Row="0" />
         <TabControl Grid.Row="1">
             <TabItem Header="Header">
-                <requestControls:HeadersInput DataContext="{Binding HeadersInput}"/>
+                <request1:HeadersInput DataContext="{Binding HeadersInput}"/>
             </TabItem>
             <TabItem Header="Body" IsEnabled="{Binding IsBodyEnabled}">
-                <requestControls:BodyInput DataContext="{Binding JsonBodyInput}"/>
+                <request1:BodyInput DataContext="{Binding JsonBodyInput}"/>
             </TabItem>
         </TabControl>
     </Grid>

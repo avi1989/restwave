@@ -1,36 +1,37 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
+using RealRestClient.Services;
 using RealRestClient.ViewModels;
 using RealRestClient.Views;
-using MainWindowViewModel = RealRestClient.ViewModels.MainWindowViewModel;
 
 namespace RealRestClient;
 
 public partial class App : Application
 {
+    private ConfigManager configManager;
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+        this.configManager = new ConfigManager();
+        this.configManager.LoadConfiguration();
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
-            
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = new AppViewModel(),
             };
         }
-
         base.OnFrameworkInitializationCompleted();
     }
 

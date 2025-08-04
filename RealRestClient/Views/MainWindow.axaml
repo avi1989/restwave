@@ -3,19 +3,19 @@
         xmlns:vm="using:RealRestClient.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:RealRestClient.Views.Controls"
-        xmlns:requestControls="clr-namespace:RealRestClient.Views.Controls.RequestControls"
         xmlns:requests="clr-namespace:RealRestClient.ViewModels.Requests"
+        xmlns:request="clr-namespace:RealRestClient.Views.Request"
+        xmlns:features="clr-namespace:RealRestClient.Views"
+        xmlns:views="clr-namespace:RealRestClient.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="RealRestClient.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
+        x:DataType="vm:AppViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="RealRestClient">
-
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel />
+        <vm:AppViewModel />
     </Design.DataContext>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -30,37 +30,7 @@
             </MenuItem>
         </Menu>
         <DockPanel>
-            <TextBlock Text="Real Rest Client" DockPanel.Dock="Top" />
-            <SplitView IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="200" VerticalAlignment="Stretch"
-                       HorizontalAlignment="Stretch">
-                <SplitView.Pane>
-                    <TextBlock Text="Sidebar" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
-                </SplitView.Pane>
-                <DockPanel HorizontalAlignment="Stretch" Margin="0 2 0 0">
-                    <DockPanel DockPanel.Dock="Top">
-                        <ComboBox SelectedIndex="0" MaxDropDownHeight="100" DockPanel.Dock="Left"
-                                  SelectedItem="{Binding Request.Method, Mode=TwoWay}"
-                                  SelectionBoxItem="{Binding Request.Method}" ItemsSource="{Binding Methods}" />
-                        <Button Name="BtnInvoke" Content="{Binding SubmitButtonText}" HorizontalAlignment="Right" Margin="5 0 0 0"
-                                DockPanel.Dock="Right" Click="BtnInvoke_OnClick">
-                        </Button>
-                        <TextBox HorizontalAlignment="Stretch" Text="{Binding Request.Url}"></TextBox>
-                    </DockPanel>
-
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <requestControls:RequestView DockPanel.Dock="Left" VerticalAlignment="Stretch"
-                                                     DataContext="{Binding Request}" Grid.Column="0"/>
-                        <controls:ResponseView DockPanel.Dock="Right" VerticalAlignment="Stretch"
-                                               DataContext="{Binding Response}" Grid.Column="1"/>
-                    </Grid>
-                </DockPanel>
-            </SplitView>
+            <views:HttpView DataContext="{Binding HttpViewModel}"/>
         </DockPanel>
     </DockPanel>
 </Window>

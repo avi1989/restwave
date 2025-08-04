@@ -1,8 +1,6 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
 
-namespace RealRestClient.Views.Controls;
+namespace RealRestClient.Views.Response;
 
 public partial class ResponseView : UserControl
 {

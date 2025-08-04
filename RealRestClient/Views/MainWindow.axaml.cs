@@ -9,93 +9,43 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using RealRestClient.ViewModels;
 using RealRestClient.ViewModels.Responses;
-using MainWindowViewModel = RealRestClient.ViewModels.MainWindowViewModel;
+using RealRestClient.Models;
+using RealRestClient.Services;
 
 namespace RealRestClient.Views;
 
 public partial class MainWindow : Window
 {
-    public static HttpClient HttpClient { get; } = new();
+    private AppViewModel ViewModel => (AppViewModel)DataContext!;
 
-    private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
+    private Config config;
+    private readonly ConfigManager configManager;
 
     public MainWindow()
     {
         InitializeComponent();
-    }
+        this.configManager = new ConfigManager();
+        this.config = configManager.LoadConfiguration();
 
-    private async void BtnInvoke_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (this.ViewModel.Response.IsLoading)
+        this.Opened += async (_, __) =>
         {
-            // If currently loading, cancel the operation
-            this.ViewModel.Response.CancelOperation();
-            return;
-        }
-
-        this.ViewModel.Response.StatusCode = string.Empty;
-        this.ViewModel.Response.Body = string.Empty;
-        this.ViewModel.Response.Headers.Clear();
-        this.ViewModel.Response.StartOperation(); // This creates the cancellation token and sets IsLoading = true
-        try
-        {
-            this.ViewModel.Response.IsLoading = true;
-            var request = new HttpRequestMessage(new HttpMethod(this.ViewModel.Request.Method),
-                this.ViewModel.Request.Url);
-            foreach (var header in this.ViewModel.Request.HeadersInput.Headers)
+            if (this.config.RequestsDirectoryPath == null)
             {
-                request.Headers.Add(header.Key, header.Value);
-            }
-
-            if (this.ViewModel.Request.IsBodyEnabled)
-            {
-                request.Content = new StringContent(this.ViewModel.Request.JsonBodyInput.JsonText,
-                    System.Text.Encoding.UTF8, "application/json");
-            }
-
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead,
-                this.ViewModel.Response.CancellationToken);
-            var responseContentType = response.Content.Headers.ContentType?.MediaType ?? "text/plain";
-
-            this.ViewModel.Response.StatusCode = response.StatusCode.ToString();
-            foreach (var header in response.Headers)
-            {
-                var newItem = new KeyValuePair<string, string>(header.Key, string.Join(", ", header.Value.ToList()));
-                this.ViewModel.Response.Headers.Add(newItem);
-            }
-
-            if (responseContentType != "text/event-stream")
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                this.ViewModel.Response.Body = response.IsSuccessStatusCode
-                    ? content
-                    : $"Error {response.StatusCode}: {content}";
-            }
-            else
-            {
-                await using var stream = await response.Content.ReadAsStreamAsync();
-                using var reader = new StreamReader(stream);
-
-                while (!this.ViewModel.Response.CancellationToken.IsCancellationRequested)
+                var configWindow = new ConfigWindow();
+                var result = await configWindow.ShowDialog<string?>(this);
+                if (!string.IsNullOrWhiteSpace(result))
                 {
-                    var line = await reader.ReadLineAsync();
-                    if (line == null) break;
-
-                    if (!string.IsNullOrEmpty(line))
-                    {
-                        this.ViewModel.Response.Body += line + Environment.NewLine;
-                    }
+                    config.RequestsDirectoryPath = result;
+                    this.configManager.SaveConfig(result);
+                }
+                else
+                {
+                    // User closed config window without entering a path, close app
+                    Close();
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            this.ViewModel.Response.Body = $"Exception: {ex.Message}";
-            Debug.WriteLine($"Exception: {ex.Message}");
-        }
-        finally
-        {
-            this.ViewModel.Response.CompleteOperation(); // This sets IsLoading = false and cleans up
-        }
+        };
     }
+
+
 }

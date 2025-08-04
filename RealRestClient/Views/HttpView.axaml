@@ -1,0 +1,59 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:RealRestClient.ViewModels"
+             xmlns:request="clr-namespace:RealRestClient.Views.Request"
+             xmlns:response="clr-namespace:RealRestClient.Views.Response"
+             xmlns:request1="clr-namespace:RealRestClient.Views.Request"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="RealRestClient.Views.HttpView"
+             x:DataType="viewModels:HttpViewModel">
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <viewModels:HttpViewModel />
+    </Design.DataContext>
+    <DockPanel>
+        <DockPanel>
+            <TextBlock Text="Real Rest Client" DockPanel.Dock="Top" />
+            <SplitView IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="300" VerticalAlignment="Stretch"
+                       HorizontalAlignment="Stretch">
+                <SplitView.Pane>
+                    <TreeView ItemsSource="{Binding Collections}">
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding SubNodes}">
+                                <TextBlock Text="{Binding Title}"></TextBlock>
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                    <!-- <TextBlock Text="Sidebar" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock> -->
+                </SplitView.Pane>
+                <DockPanel HorizontalAlignment="Stretch" Margin="0 2 0 0">
+                    <DockPanel DockPanel.Dock="Top">
+                        <ComboBox SelectedIndex="0" MaxDropDownHeight="100" DockPanel.Dock="Left"
+                                  SelectedItem="{Binding Request.Method, Mode=TwoWay}"
+                                  SelectionBoxItem="{Binding Request.Method}" ItemsSource="{Binding Methods}" />
+                        <Button Name="BtnInvoke" Content="{Binding SubmitButtonText}" HorizontalAlignment="Right" Margin="5 0 0 0"
+                                DockPanel.Dock="Right" Click="BtnInvoke_OnClick">
+                        </Button>
+                        <TextBox HorizontalAlignment="Stretch" Text="{Binding Request.Url}"></TextBox>
+                    </DockPanel>
+
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <request1:RequestView DockPanel.Dock="Left" VerticalAlignment="Stretch"
+                                                     DataContext="{Binding Request}" Grid.Column="0"/>
+                        <response:ResponseView DockPanel.Dock="Right" VerticalAlignment="Stretch"
+                                               DataContext="{Binding Response}" Grid.Column="1"/>
+                    </Grid>
+                </DockPanel>
+            </SplitView>
+        </DockPanel>
+    </DockPanel>
+</UserControl>

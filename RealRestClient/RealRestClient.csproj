@@ -38,5 +38,14 @@
             <DependentUpon>RequestView.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
+        <Compile Update="Views\HttpView.axaml.cs">
+          <DependentUpon>HttpView.axaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <AdditionalFiles Include="Views\Response\ResponseView.axaml" />
     </ItemGroup>
 </Project>

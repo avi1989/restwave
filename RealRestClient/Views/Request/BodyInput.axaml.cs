@@ -1,15 +1,12 @@
 ﻿using System;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using AvaloniaEdit;
-using AvaloniaEdit.TextMate;
-using RealRestClient.ViewModels;
-using TextMateSharp.Grammars;
-using AvaloniaEdit.Indentation;
 using AvaloniaEdit.Indentation.CSharp;
+using AvaloniaEdit.TextMate;
+using TextMateSharp.Grammars;
 using JsonBodyInputViewModel = RealRestClient.ViewModels.Requests.JsonBodyInputViewModel;
 
-namespace RealRestClient.Views.Controls.RequestControls
+namespace RealRestClient.Views.Request
 {
     public partial class BodyInput : UserControl
     {

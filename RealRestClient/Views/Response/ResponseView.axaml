@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:RealRestClient.ViewModels.Responses"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="RealRestClient.Views.Controls.ResponseView"
+             x:Class="RealRestClient.Views.Response.ResponseView"
              x:DataType="vm:ResponseViewModel">
 
     <Design.DataContext>
@@ -22,11 +22,11 @@
                              TextWrapping="Wrap"
                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             Background="White"
                              BorderThickness="1"
                              BorderBrush="Gray"
                              Padding="8"
-                             FontFamily="Consolas,Monaco,monospace" />
+                             FontFamily="Consolas,Monaco,monospace">
+                    </TextBox>
                 </Grid>
             </TabItem>
             <TabItem Header="Headers">

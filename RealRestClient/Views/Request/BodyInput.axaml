@@ -6,7 +6,7 @@
              xmlns:vm="clr-namespace:RealRestClient.ViewModels"
              xmlns:requests="clr-namespace:RealRestClient.ViewModels.Requests"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="RealRestClient.Views.Controls.RequestControls.BodyInput"
+             x:Class="RealRestClient.Views.Request.BodyInput"
              x:DataType="requests:JsonBodyInputViewModel">
     <Design.DataContext>
         <requests:JsonBodyInputViewModel />
