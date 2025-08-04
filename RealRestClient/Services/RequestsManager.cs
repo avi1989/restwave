@@ -21,6 +21,10 @@ public class RequestsManager
 
     public ICollection<Node> GetCollections()
     {
+        if (this.config.RequestsDirectoryPath == null)
+        {
+            return new List<Node>();
+        }
         if (!Directory.Exists(this.config.RequestsDirectoryPath))
         {
             Directory.CreateDirectory(this.config.RequestsDirectoryPath!);
