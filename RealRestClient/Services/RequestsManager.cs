@@ -89,7 +89,7 @@ public class RequestsManager
         File.WriteAllText(filePath, json);
     }
 
-    public void SaveRequestToCollection(RequestViewModel request, string collectionName, string requestName)
+    public string CreateCollection(string collectionName)
     {
         if (!Directory.Exists(this.config.RequestsDirectoryPath))
         {
@@ -101,6 +101,13 @@ public class RequestsManager
         {
             Directory.CreateDirectory(collectionPath);
         }
+
+        return collectionPath;
+    }
+
+    public void SaveRequestToCollection(RequestViewModel request, string collectionName, string requestName)
+    {
+        var collectionPath = CreateCollection(collectionName);
 
         var fileName = $"{requestName}.json";
         var filePath = Path.Combine(collectionPath, fileName);

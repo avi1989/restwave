@@ -16,28 +16,52 @@
     </Design.DataContext>
     <DockPanel>
         <DockPanel>
-            <TextBlock Text="Real Rest Client" DockPanel.Dock="Top" />
             <SplitView IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="300" VerticalAlignment="Stretch"
                        HorizontalAlignment="Stretch">
                 <SplitView.Pane>
-                    <components:CollectionList DataContext="{Binding Collections}"/>
-                    <!-- <TextBlock Text="Sidebar" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock> -->
+                    <components:CollectionList DataContext="{Binding Collections}" />
                 </SplitView.Pane>
                 <DockPanel HorizontalAlignment="Stretch" Margin="0 2 0 0">
+                    <Border DockPanel.Dock="Top"
+                            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                            Padding="10,8"
+                            Margin="0,0,0,5">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📄"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"
+                                       FontSize="14"
+                                       IsVisible="{Binding Collections.SelectedRequestName, Converter={x:Static StringConverters.IsNotNullOrEmpty} , FallbackValue={x:False}}" />
+                            <TextBlock Text="{Binding Collections.SelectedRequestName, FallbackValue={x:Null}}"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                        </StackPanel>
+                    </Border>
+
                     <DockPanel DockPanel.Dock="Top">
-                        <ComboBox SelectedIndex="0" MaxDropDownHeight="100" DockPanel.Dock="Left"
+                        <ComboBox SelectedIndex="0" MaxDropDownHeight="100" DockPanel.Dock="Left" Height="32"
                                   SelectedItem="{Binding Request.Method, Mode=TwoWay}"
+                                  VerticalAlignment="Center"
                                   SelectionBoxItem="{Binding Request.Method}" ItemsSource="{Binding Methods}" />
                         <Grid HorizontalAlignment="Stretch">
-                            <TextBox HorizontalAlignment="Stretch" Text="{Binding Request.Url}" Padding="5,0,80,0"></TextBox>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4">
-                                <Button Name="BtnSave" Width="32" Height="28" Margin="0,0,4,0" Background="Transparent" BorderThickness="0"
+                            <TextBox HorizontalAlignment="Stretch" VerticalContentAlignment="Center"
+                                     Text="{Binding Request.Url}" Padding="10,0,80,0" Height="32">
+                            </TextBox>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                        Margin="4">
+                                <Button Name="BtnSave" Width="32" Height="28" Margin="0,0,4,0" Background="Transparent"
+                                        BorderThickness="0"
                                         Click="BtnSave_OnClick" ToolTip.Tip="Save Request">
-                                    <TextBlock Text="💾" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" />
+                                    <TextBlock Text="💾" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               FontSize="12" />
                                 </Button>
-                                <Button Name="BtnInvoke" Width="32" Height="28" Background="Transparent" BorderThickness="0"
+                                <Button Name="BtnInvoke" Width="32" Height="28" Background="Transparent"
+                                        BorderThickness="0"
                                         Click="BtnInvoke_OnClick" ToolTip.Tip="{Binding SubmitButtonText}">
-                                    <TextBlock Text="{Binding SubmitButtonIcon}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" />
+                                    <TextBlock Text="{Binding SubmitButtonIcon}" VerticalAlignment="Center"
+                                               HorizontalAlignment="Center" FontSize="12" />
                                 </Button>
                             </StackPanel>
                         </Grid>
@@ -51,9 +75,9 @@
                         </Grid.ColumnDefinitions>
 
                         <request1:RequestView DockPanel.Dock="Left" VerticalAlignment="Stretch"
-                                                     DataContext="{Binding Request}" Grid.Column="0"/>
+                                              DataContext="{Binding Request}" Grid.Column="0" />
                         <response:ResponseView DockPanel.Dock="Right" VerticalAlignment="Stretch"
-                                               DataContext="{Binding Response}" Grid.Column="1"/>
+                                               DataContext="{Binding Response}" Grid.Column="1" />
                     </Grid>
                 </DockPanel>
             </SplitView>

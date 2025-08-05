@@ -17,9 +17,16 @@ public partial class CollectionsViewModel : ViewModelBase
     }
 
     [ObservableProperty] private ObservableCollection<Node> _collections;
-    
+
     [ObservableProperty] private Node? _selectedNode;
-    
+
+    public string? SelectedRequestName => this.SelectedNode?.IsFolder == false ? this.SelectedNode?.Title : "";
+
+    partial void OnSelectedNodeChanged(Node? value)
+    {
+        OnPropertyChanged(nameof(SelectedRequestName));
+    }
+
     public void RefreshCollections(TreeView? treeView)
     {
         // Capture expanded state before refreshing
@@ -28,7 +35,7 @@ public partial class CollectionsViewModel : ViewModelBase
         {
             CaptureTreeViewExpandedState(treeView, expandedState);
         }
-        
+
         this.Collections.Clear();
         RequestsManager requestsManager = new();
         var collections = requestsManager.GetCollections();
@@ -36,17 +43,15 @@ public partial class CollectionsViewModel : ViewModelBase
         {
             this.Collections.Add(collection);
         }
-        
+
         // Restore expanded state after a short delay to allow UI to update
         if (treeView != null && expandedState.Count > 0)
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                RestoreTreeViewExpandedState(treeView, expandedState);
-            }, DispatcherPriority.Background);
+            Dispatcher.UIThread.Post(() => { RestoreTreeViewExpandedState(treeView, expandedState); },
+                DispatcherPriority.Background);
         }
     }
-    
+
     private void CaptureTreeViewExpandedState(TreeView treeView, Dictionary<string, bool> expandedState)
     {
         var treeViewItems = treeView.FindDescendantsOfType<TreeViewItem>().ToList();
@@ -75,7 +80,7 @@ public partial class CollectionsViewModel : ViewModelBase
             }
         }
     }
-    
+
     private string GetNodePath(Node node)
     {
         // Create a unique path for the node based on its hierarchy
@@ -84,6 +89,7 @@ public partial class CollectionsViewModel : ViewModelBase
         {
             path = $"{node.CollectionName}/{node.Title}";
         }
+
         return path;
     }
 }
