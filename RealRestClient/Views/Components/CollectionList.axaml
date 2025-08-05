@@ -1,0 +1,52 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:RealRestClient.Views.Components"
+             xmlns:viewModels="clr-namespace:RealRestClient.ViewModels"
+             xmlns:views="clr-namespace:RealRestClient.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="RealRestClient.Views.Components.CollectionList"
+             x:DataType="viewModels:CollectionsViewModel">
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <viewModels:CollectionsViewModel />
+    </Design.DataContext>
+    <TreeView ItemsSource="{Binding Collections}"
+              SelectedItem="{Binding SelectedNode}"
+              x:Name="CollectionsTreeView">
+        <TreeView.ItemTemplate>
+            <TreeDataTemplate ItemsSource="{Binding SubNodes}">
+                <Border Background="Transparent"
+                        x:Name="ItemBorder"
+                        Padding="2"
+                        CornerRadius="3">
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Folder/File Icon -->
+                        <TextBlock Text="{Binding IsFolder, Converter={x:Static local:FolderIconConverter.Instance}}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,4,0"
+                                   FontSize="12" />
+                        <!-- Display Text -->
+                        <TextBlock Text="{Binding Title}"
+                                   IsVisible="{Binding !IsEditing}"
+                                   VerticalAlignment="Center"
+                                   Margin="2" />
+                        <!-- Edit TextBox -->
+                        <TextBox Text="{Binding EditingText}"
+                                 IsVisible="{Binding IsEditing}"
+                                 x:Name="EditingTextBox"
+                                 MinWidth="100"
+                                 VerticalAlignment="Center"
+                                 Margin="2"
+                                 BorderThickness="1"
+                                 Padding="2"
+                                 KeyDown="EditingTextBox_KeyDown"
+                                 LostFocus="EditingTextBox_LostFocus" />
+                    </StackPanel>
+                </Border>
+            </TreeDataTemplate>
+        </TreeView.ItemTemplate>
+    </TreeView>
+</UserControl>

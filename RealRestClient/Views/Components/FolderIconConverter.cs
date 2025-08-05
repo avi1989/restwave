@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
 
-namespace RealRestClient.Views;
+namespace RealRestClient.Views.Components;
 
 public class FolderIconConverter : IValueConverter
 {

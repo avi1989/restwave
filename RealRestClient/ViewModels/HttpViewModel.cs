@@ -13,16 +13,14 @@ public partial class HttpViewModel : ViewModelBase
         // Initialize Response through the property, not the field
         Request = new RequestViewModel();
         Response = new ResponseViewModel();
-        Collections = new ObservableCollection<Node>();
+        Collections = new CollectionsViewModel();
     }
 
     [ObservableProperty] private RequestViewModel request;
 
     [ObservableProperty] private ResponseViewModel _response;
-    
-    [ObservableProperty] private ObservableCollection<Node> _collections;
-    
-    [ObservableProperty] private Node? _selectedNode;
+
+    [ObservableProperty] private CollectionsViewModel _collections;
 
     public string SubmitButtonText => this.Response.IsLoading ? "Cancel" : "Invoke";
     
