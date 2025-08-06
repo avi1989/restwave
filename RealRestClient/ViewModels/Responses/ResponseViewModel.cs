@@ -8,10 +8,42 @@ namespace RealRestClient.ViewModels.Responses;
 public partial class ResponseViewModel : ViewModelBase
 {
     [ObservableProperty] private string _statusCode = string.Empty;
+    
+    private ObservableCollection<string> _streamLines;
+    private bool _isStreaming;
+    
+    [ObservableProperty] private bool _isLoading;
 
-    [ObservableProperty] private string _body = string.Empty;
+    [ObservableProperty] private string _body;
 
-    [ObservableProperty] private bool _isLoading = false;
+    public ResponseViewModel()
+    {
+        _streamLines = new ObservableCollection<string>();
+    }
+    
+    public ObservableCollection<string> StreamLines => _streamLines;
+    
+    
+    public void AppendStreamLine(string line)
+    {
+        _streamLines.Add(line);
+    }
+
+    public void ClearStreamLines()
+    {
+        _streamLines.Clear();
+    }
+    
+    public bool IsStreaming
+    {
+        get => _isStreaming;
+        set
+        {
+            _isStreaming = value;
+            OnPropertyChanged();
+        }
+    }
+
     
     private CancellationTokenSource? _cancellationTokenSource;
 

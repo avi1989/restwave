@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:RealRestClient.ViewModels.Responses"
+             xmlns:response="clr-namespace:RealRestClient.Views.Response"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="RealRestClient.Views.Response.ResponseView"
              x:DataType="vm:ResponseViewModel">
@@ -16,22 +17,20 @@
         <TabControl>
             <TabItem Header="Response">
                 <Grid>
-                    <TextBox Text="{Binding Body}"
-                             IsReadOnly="True"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             BorderThickness="1"
-                             BorderBrush="Gray"
-                             Padding="8"
-                             FontFamily="Consolas,Monaco,monospace">
-                    </TextBox>
+                    <response:StreamingResponseControl
+                        DataContext="{Binding}"
+                        x:DataType="vm:ResponseViewModel"
+                        IsVisible="{Binding IsStreaming}" 
+                        />
+                    <response:SimpleResponseControl 
+                        DataContext="{Binding}" 
+                        x:DataType="vm:ResponseViewModel"
+                        IsVisible="{Binding !IsStreaming}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Headers">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Auto">
+                              HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl ItemsSource="{Binding Headers}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>

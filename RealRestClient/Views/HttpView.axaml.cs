@@ -110,6 +110,7 @@ public partial class HttpView : UserControl
 
             if (responseContentType != "text/event-stream")
             {
+                this.ViewModel.Response.IsStreaming = false;
                 var content = await response.Content.ReadAsStringAsync();
                 this.ViewModel.Response.Body = response.IsSuccessStatusCode
                     ? content
@@ -117,6 +118,8 @@ public partial class HttpView : UserControl
             }
             else
             {
+                this.ViewModel.Response.IsStreaming = true;
+                this.ViewModel.Response.ClearStreamLines();
                 await using var stream = await response.Content.ReadAsStreamAsync();
                 using var reader = new StreamReader(stream);
 
@@ -127,7 +130,10 @@ public partial class HttpView : UserControl
 
                     if (!string.IsNullOrEmpty(line))
                     {
-                        this.ViewModel.Response.Body += line + Environment.NewLine;
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            this.ViewModel.Response.AppendStreamLine(line);
+                        });
                     }
                 }
             }

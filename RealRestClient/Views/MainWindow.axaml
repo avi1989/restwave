@@ -10,8 +10,6 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="RealRestClient.Views.MainWindow"
         x:DataType="vm:AppViewModel"
-        Width="1920"
-        Height="1080"
         WindowState="Normal"
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/avalonia-logo.ico"
