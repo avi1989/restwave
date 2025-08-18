@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -63,89 +64,104 @@ public partial class HttpView : UserControl
         this.configManager = new ConfigManager();
         this.config = configManager.LoadConfiguration();
     }
-    
+
     public static HttpClient HttpClient { get; } = new();
 
     private HttpViewModel ViewModel => (HttpViewModel)DataContext!;
-    
+
     private async void BtnInvoke_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (this.ViewModel.Response.IsLoading)
+        var viewModel = this.ViewModel;
+
+        if (viewModel.Response.IsLoading)
         {
             // If currently loading, cancel the operation
-            this.ViewModel.Response.CancelOperation();
+            viewModel.Response.CancelOperation();
             return;
         }
 
-        this.ViewModel.Response.StatusCode = string.Empty;
-        this.ViewModel.Response.Body = string.Empty;
-        this.ViewModel.Response.Headers.Clear();
-        this.ViewModel.Response.StartOperation(); // This creates the cancellation token and sets IsLoading = true
+        viewModel.Response.StatusCode = string.Empty;
+        viewModel.Response.Body = string.Empty;
+        viewModel.Response.Headers.Clear();
+        viewModel.Response.StartOperation(); // This creates the cancellation token and sets IsLoading = true
+
         try
         {
-            this.ViewModel.Response.IsLoading = true;
-            var request = new HttpRequestMessage(new HttpMethod(this.ViewModel.Request.Method),
-                this.ViewModel.Request.Url);
-            foreach (var header in this.ViewModel.Request.HeadersInput.Headers)
+            var request = new HttpRequestMessage(new HttpMethod(viewModel.Request.Method),
+                viewModel.Request.Url);
+            foreach (var header in viewModel.Request.HeadersInput.Headers)
             {
                 request.Headers.Add(header.Key, header.Value);
             }
 
-            if (this.ViewModel.Request.IsBodyEnabled)
+            if (viewModel.Request.IsBodyEnabled)
             {
-                request.Content = new StringContent(this.ViewModel.Request.JsonBodyInput.JsonText,
+                request.Content = new StringContent(viewModel.Request.JsonBodyInput.JsonText,
                     System.Text.Encoding.UTF8, "application/json");
             }
 
             var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead,
-                this.ViewModel.Response.CancellationToken);
+                viewModel.Response.CancellationToken).ConfigureAwait(false);
             var responseContentType = response.Content.Headers.ContentType?.MediaType ?? "text/plain";
 
-            this.ViewModel.Response.StatusCode = response.StatusCode.ToString();
-            foreach (var header in response.Headers)
+            // Update UI properties on UI thread
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                var newItem = new KeyValuePair<string, string>(header.Key, string.Join(", ", header.Value.ToList()));
-                this.ViewModel.Response.Headers.Add(newItem);
-            }
+                viewModel.Response.StatusCode = response.StatusCode.ToString();
+                foreach (var header in response.Headers)
+                {
+                    var newItem =
+                        new KeyValuePair<string, string>(header.Key, string.Join(", ", header.Value.ToList()));
+                    viewModel.Response.Headers.Add(newItem);
+                }
+            });
 
             if (responseContentType != "text/event-stream")
             {
-                this.ViewModel.Response.IsStreaming = false;
-                var content = await response.Content.ReadAsStringAsync();
-                this.ViewModel.Response.Body = response.IsSuccessStatusCode
+                viewModel.Response.IsStreaming = false;
+                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var bodyContent = response.IsSuccessStatusCode
                     ? content
                     : $"Error {response.StatusCode}: {content}";
+
+                viewModel.Response.Body = bodyContent;
             }
             else
             {
-                this.ViewModel.Response.IsStreaming = true;
-                this.ViewModel.Response.ClearStreamLines();
-                await using var stream = await response.Content.ReadAsStreamAsync();
+                viewModel.Response.IsStreaming = true;
+                viewModel.Response.ClearStreamLines();
+
+                await using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var reader = new StreamReader(stream);
 
-                while (!this.ViewModel.Response.CancellationToken.IsCancellationRequested)
+                while (!viewModel.Response.CancellationToken.IsCancellationRequested)
                 {
-                    var line = await reader.ReadLineAsync();
+                    var line = await reader.ReadLineAsync().ConfigureAwait(false);
                     if (line == null) break;
 
                     if (!string.IsNullOrEmpty(line))
                     {
+                        // Capture the line in a local variable for the closure
+                        var capturedLine = line;
                         await Dispatcher.UIThread.InvokeAsync(() =>
                         {
-                            this.ViewModel.Response.AppendStreamLine(line);
+                            viewModel.Response.AppendStreamLine(capturedLine);
                         });
                     }
+
+                    // Add a small delay to prevent overwhelming the UI thread
+                    await Task.Delay(1, viewModel.Response.CancellationToken).ConfigureAwait(false);
                 }
             }
         }
         catch (Exception ex)
         {
-            this.ViewModel.Response.Body = $"Exception: {ex.Message}";
+            viewModel.Response.Body = $"Exception: {ex.Message}";
             Debug.WriteLine($"Exception: {ex.Message}");
         }
         finally
         {
-            this.ViewModel.Response.CompleteOperation(); // This sets IsLoading = false and cleans up
+            viewModel.Response.CompleteOperation(); // This sets IsLoading = false and cleans up
         }
     }
 
@@ -175,15 +191,16 @@ public partial class HttpView : UserControl
                     // If a folder (collection) is selected, prompt for a filename and save to that collection
                     var saveDialog = new SaveRequestDialog();
                     var topLevel = TopLevel.GetTopLevel(this) as Window;
-                    
+
                     if (topLevel == null) return;
-                    
+
                     var requestName = await saveDialog.ShowDialog<string?>(topLevel);
-                    
+
                     if (!string.IsNullOrEmpty(requestName))
                     {
                         var treeView = this.FindControl<TreeView>("CollectionsTreeView");
-                        requestsManager.SaveRequestToCollection(this.ViewModel.Request, selectedNode.CollectionName!, requestName);
+                        requestsManager.SaveRequestToCollection(this.ViewModel.Request, selectedNode.CollectionName!,
+                            requestName);
                         this.ViewModel.Collections.RefreshCollections(treeView);
                     }
                 }
@@ -202,11 +219,11 @@ public partial class HttpView : UserControl
                 // No selection, use the old behavior (save to default collection with dialog)
                 var saveDialog = new SaveRequestDialog();
                 var topLevel = TopLevel.GetTopLevel(this) as Window;
-                
+
                 if (topLevel == null) return;
-                
+
                 var result = await saveDialog.ShowDialog<string?>(topLevel);
-                
+
                 if (!string.IsNullOrEmpty(result))
                 {
                     var treeView = this.FindControl<TreeView>("CollectionsTreeView");
@@ -221,7 +238,7 @@ public partial class HttpView : UserControl
             Debug.WriteLine($"Error saving request: {ex.Message}");
         }
     }
-    
+
     private void OnSelectedNodeChanged()
     {
         var selectedNode = this.ViewModel.Collections.SelectedNode;
