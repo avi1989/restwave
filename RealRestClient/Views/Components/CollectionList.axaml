@@ -18,6 +18,11 @@
         <TreeView ItemsSource="{Binding Collections}"
                   SelectedItem="{Binding SelectedNode}"
                   x:Name="CollectionsTreeView">
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem" x:DataType="viewModels:Node">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                </Style>
+            </TreeView.Styles>
             <TreeView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Create New Request"

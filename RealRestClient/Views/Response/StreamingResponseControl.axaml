@@ -17,7 +17,7 @@
                 <ListBox.Template>
                     <ControlTemplate>
                         <ScrollViewer Name="PART_ScrollViewer"
-                                      HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                      HorizontalScrollBarVisibility="Disabled"
                                       VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
                             <ItemsPresenter ItemsPanel="{TemplateBinding ItemsPanel}"
                                             Margin="{TemplateBinding Padding}" />
@@ -46,6 +46,8 @@
                 <ScrollViewer Name="GroupedScrollView"
                               HorizontalScrollBarVisibility="Disabled">
                     <TextBlock Name="StreamingContent"
+                               TextWrapping="Wrap"
+                               MaxWidth="{Binding $parent.Width}"
                                Text="{Binding SelectedGroupDocument}"
                                FontFamily="Consolas,Monaco,monospace" />
                 </ScrollViewer>

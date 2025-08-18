@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using RealRestClient.Models;
 
 namespace RealRestClient.Services;
@@ -7,7 +9,7 @@ namespace RealRestClient.Services;
 public class ConfigManager
 {
     private readonly string configPath;
-    private Config config;
+    private Config config = new();
 
     public ConfigManager()
     {
@@ -49,15 +51,34 @@ public class ConfigManager
         return this.config;
     }
 
-    public void SaveConfig(string path)
+    private void Write()
     {
-        this.config.RequestsDirectoryPath = path;
         Directory.CreateDirectory(Path.GetDirectoryName(this.configPath)!);
         string json = System.Text.Json.JsonSerializer.Serialize(this.config, new System.Text.Json.JsonSerializerOptions
         {
             WriteIndented = true
         });
-
         File.WriteAllText(this.configPath, json);
     }
+
+    public void SaveConfig(string path)
+    {
+        this.config.RequestsDirectoryPath = path;
+        Write();
+    }
+
+    public void SaveExpandedFolders(List<string> expandedFolders)
+    {
+        // store unique and sorted for stability
+        this.config.ExpandedFolders = expandedFolders.Distinct().OrderBy(x => x).ToList();
+        Write();
+    }
+
+    public void SaveLastOpenedFilePath(string? filePath)
+    {
+        this.config.LastOpenedFilePath = filePath;
+        Write();
+    }
+
+    public Config Current => this.config;
 }

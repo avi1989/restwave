@@ -175,6 +175,9 @@ public partial class HttpView : UserControl
                 OnSelectedNodeChanged();
             }
         };
+        // In case the selection was set before this handler was attached (e.g., restored from config),
+        // load the request now.
+        OnSelectedNodeChanged();
     }
 
     private async void BtnSave_OnClick(object? sender, RoutedEventArgs e)
@@ -244,6 +247,16 @@ public partial class HttpView : UserControl
         var selectedNode = this.ViewModel.Collections.SelectedNode;
         if (selectedNode != null && !selectedNode.IsFolder && !string.IsNullOrEmpty(selectedNode.FilePath))
         {
+            // Persist last opened file path
+            try
+            {
+                this.configManager.SaveLastOpenedFilePath(selectedNode.FilePath);
+            }
+            catch
+            {
+                // Ignore persistence errors
+            }
+
             // Load the request when a file is selected
             var requestsManager = new RequestsManager();
             var loadedRequest = requestsManager.LoadRequest(selectedNode.FilePath);

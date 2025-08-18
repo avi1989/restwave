@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace RealRestClient.Views.Components;
 public partial class CollectionList : UserControl
 {
     private Node? _draggedNode;
+    private readonly RealRestClient.Services.ConfigManager _configManager = new();
+    private readonly HashSet<Node> _subscribedFolderNodes = new();
 
     public CollectionList()
     {
@@ -40,11 +43,73 @@ public partial class CollectionList : UserControl
         {
             this.ViewModel.Collections.Add(collection);
         }
+        // Apply persisted expanded folders state and subscribe to changes
+        ApplyExpandedFoldersFromConfig();
+        SubscribeFolderNodes();
+        PersistExpandedFolders();
+        // Restore last opened file selection
+        ApplyLastOpenedFileFromConfig();
     }
 
     private void OnHttpViewLoaded(object? sender, RoutedEventArgs e)
     {
         SetupDragAndDrop();
+    }
+
+    private void UnsubscribeFolderNodes()
+    {
+        foreach (var node in _subscribedFolderNodes.ToList())
+        {
+            node.PropertyChanged -= NodeOnPropertyChanged;
+        }
+        _subscribedFolderNodes.Clear();
+    }
+
+    private void SubscribeFolderNodes()
+    {
+        UnsubscribeFolderNodes();
+        foreach (var node in this.ViewModel.Collections.Where(n => n.IsFolder))
+        {
+            node.PropertyChanged += NodeOnPropertyChanged;
+            _subscribedFolderNodes.Add(node);
+        }
+    }
+
+    private void NodeOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Node.IsExpanded))
+        {
+            PersistExpandedFolders();
+        }
+    }
+
+    private void PersistExpandedFolders()
+    {
+        var expanded = this.ViewModel.Collections
+            .Where(n => n.IsFolder && n.IsExpanded)
+            .Select(n => n.FilePath ?? n.Title)
+            .ToList();
+        _configManager.SaveExpandedFolders(expanded);
+    }
+
+    private void ApplyExpandedFoldersFromConfig()
+    {
+        var cfg = _configManager.LoadConfiguration();
+        var expanded = cfg.ExpandedFolders ?? new List<string>();
+        foreach (var node in this.ViewModel.Collections.Where(n => n.IsFolder))
+        {
+            var key = node.FilePath ?? node.Title;
+            node.IsExpanded = expanded.Contains(key);
+        }
+    }
+
+    private void RefreshAndWire(TreeView? treeView)
+    {
+        this.ViewModel.RefreshCollections(treeView);
+        ApplyExpandedFoldersFromConfig();
+        SubscribeFolderNodes();
+        PersistExpandedFolders();
+        ApplyLastOpenedFileFromConfig();
     }
 
     private void SetupDragAndDrop()
@@ -106,7 +171,7 @@ public partial class CollectionList : UserControl
             {
                 var treeView = this.FindControl<TreeView>("CollectionsTreeView");
                 node.StopEditing(true);
-                this.ViewModel.RefreshCollections(treeView);
+                RefreshAndWire(treeView);
             }
             else
             {
@@ -278,6 +343,37 @@ public partial class CollectionList : UserControl
         }
     }
 
+    private void ApplyLastOpenedFileFromConfig()
+    {
+        var cfg = _configManager.LoadConfiguration();
+        var lastPath = cfg.LastOpenedFilePath;
+        if (string.IsNullOrWhiteSpace(lastPath))
+            return;
+
+        Node? target = null;
+        Node? parentCollection = null;
+
+        foreach (var collection in this.ViewModel.Collections.Where(n => n.IsFolder))
+        {
+            var match = collection.SubNodes?.FirstOrDefault(f => string.Equals(f.FilePath, lastPath, StringComparison.OrdinalIgnoreCase));
+            if (match != null)
+            {
+                target = match;
+                parentCollection = collection;
+                break;
+            }
+        }
+
+        if (target != null)
+        {
+            if (parentCollection != null)
+            {
+                parentCollection.IsExpanded = true;
+            }
+            this.ViewModel.SelectedNode = target;
+        }
+    }
+
     // Context Menu Event Handlers
     private void CreateNewRequest_Click(object? sender, RoutedEventArgs e)
     {
@@ -354,6 +450,8 @@ public partial class CollectionList : UserControl
 
         if (node != null && !node.IsFolder)
         {
+            // Ensure selection is updated so other components (HttpView) can react and persist
+            this.ViewModel.SelectedNode = node;
             // Open the request file
             OpenRequest(node);
         }
