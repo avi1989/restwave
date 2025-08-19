@@ -68,16 +68,25 @@
                     </DockPanel>
 
 
+
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
                         <request1:RequestView DockPanel.Dock="Left" VerticalAlignment="Stretch"
                                               DataContext="{Binding Request}" Grid.Column="0" />
+    
+                        <GridSplitter Grid.Column="1" 
+                                      Width="5" 
+                                      HorizontalAlignment="Center" 
+                                      VerticalAlignment="Stretch"
+                                      Background="Gray" />
+    
                         <response:ResponseView DockPanel.Dock="Right" VerticalAlignment="Stretch"
-                                               DataContext="{Binding Response}" Grid.Column="1" />
+                                               DataContext="{Binding Response}" Grid.Column="2" />
                     </Grid>
                 </DockPanel>
             </SplitView>
