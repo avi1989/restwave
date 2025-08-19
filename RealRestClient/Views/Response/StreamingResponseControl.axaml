@@ -45,11 +45,12 @@
 
                 <ScrollViewer Name="GroupedScrollView"
                               HorizontalScrollBarVisibility="Disabled">
-                    <TextBlock Name="StreamingContent"
-                               TextWrapping="Wrap"
-                               MaxWidth="{Binding $parent.Width}"
-                               Text="{Binding SelectedGroupDocument}"
-                               FontFamily="Consolas,Monaco,monospace" />
+                    <SelectableTextBlock
+                        Name="StreamingContent"
+                        TextWrapping="Wrap"
+                        MaxWidth="{Binding $parent.Width}"
+                        Text="{Binding SelectedGroupDocument}"
+                        FontFamily="Consolas,Monaco,monospace" />
                 </ScrollViewer>
             </DockPanel>
         </TabItem>

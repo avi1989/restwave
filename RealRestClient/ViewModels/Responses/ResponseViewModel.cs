@@ -99,7 +99,13 @@ public partial class ResponseViewModel : ViewModelBase
 
     public void ClearStreamLines()
     {
-        _streamLines.Clear();
+        this.StreamLines.Clear();
+        this.SelectedGroupDocument = string.Empty;
+
+        foreach (var group in this.GroupedResponses)
+        {
+            this.GroupedResponses[group.Key] = string.Empty;
+        }
     }
 
     public bool IsStreaming
@@ -125,6 +131,7 @@ public partial class ResponseViewModel : ViewModelBase
         _cancellationTokenSource?.Cancel(); // Cancel any existing operation
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = new CancellationTokenSource();
+        ClearStreamLines();
 
         IsLoading = true;
     }

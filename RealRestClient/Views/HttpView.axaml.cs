@@ -129,7 +129,6 @@ public partial class HttpView : UserControl
             else
             {
                 viewModel.Response.IsStreaming = true;
-                viewModel.Response.ClearStreamLines();
 
                 await using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var reader = new StreamReader(stream);
