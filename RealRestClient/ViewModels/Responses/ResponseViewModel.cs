@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Threading;
@@ -75,7 +76,24 @@ public partial class ResponseViewModel : ViewModelBase
                 {
                     if (GroupedResponses.TryGetValue(property.Name, out var value))
                     {
-                        GroupedResponses[property.Name] += property.Value.ToString();
+                        if (property.Value.ToString().Trim().StartsWith("{") && JsonValidator.TryValidateJson(property.Value.ToString(), out var jsonResult))
+                        {
+                            var prettyJson = JsonSerializer.Serialize(jsonResult.RootElement, new JsonSerializerOptions 
+                            { 
+                                WriteIndented = true 
+                            });
+                            GroupedResponses[property.Name] += "\n\n";
+                            GroupedResponses[property.Name] += "```";
+                            GroupedResponses[property.Name] += prettyJson;
+                            GroupedResponses[property.Name] += "\n";
+                            GroupedResponses[property.Name] += "```";
+                            GroupedResponses[property.Name] += "\n\n";
+
+                        }
+                        else
+                        {
+                            GroupedResponses[property.Name] += property.Value.ToString();
+                        }
                     }
                     else
                     {
@@ -89,6 +107,8 @@ public partial class ResponseViewModel : ViewModelBase
                         SelectedGroupDocument = GroupedResponses[property.Name];
                     }
                 }
+                
+                Console.WriteLine(GroupedResponses["data"]);
 
                 break;
 

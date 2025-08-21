@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:responses="clr-namespace:RealRestClient.ViewModels.Responses"
+             xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="RealRestClient.Views.Response.StreamingResponseControl"
              x:DataType="responses:ResponseViewModel">
@@ -46,12 +47,8 @@
 
                 <ScrollViewer Name="GroupedScrollView"
                               HorizontalScrollBarVisibility="Disabled">
-                    <SelectableTextBlock
-                        Name="StreamingContent"
-                        TextWrapping="Wrap"
-                        MaxWidth="{Binding $parent.Width}"
-                        Text="{Binding SelectedGroupDocument}"
-                        FontFamily="Consolas,Monaco,monospace" />
+                    <mdxaml:MarkdownScrollViewer
+                        Markdown="{Binding SelectedGroupDocument}"/>
                 </ScrollViewer>
             </DockPanel>
         </TabItem>
