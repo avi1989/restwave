@@ -8,8 +8,8 @@
              x:DataType="responses:ResponseViewModel">
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
-        <TextPresenter Text="{Binding Body}"
-                       TextWrapping="Wrap"
-                       FontFamily="Consolas,Monaco,monospace" />
+        <SelectableTextBlock Text="{Binding Body}"
+                             TextWrapping="Wrap"
+                             FontFamily="Consolas,Monaco,monospace" />
     </ScrollViewer>
 </UserControl>

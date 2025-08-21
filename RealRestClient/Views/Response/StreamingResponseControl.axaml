@@ -27,9 +27,10 @@
 
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding}"
-                                   TextWrapping="Wrap"
-                                   FontFamily="Consolas,Monaco,monospace" />
+                        <SelectableTextBlock
+                            Text="{Binding}"
+                            TextWrapping="Wrap"
+                            FontFamily="Consolas,Monaco,monospace" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

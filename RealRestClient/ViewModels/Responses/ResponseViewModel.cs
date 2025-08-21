@@ -99,6 +99,7 @@ public partial class ResponseViewModel : ViewModelBase
 
     public void ClearStreamLines()
     {
+        this.IsStreaming = false;
         this.StreamLines.Clear();
         this.SelectedGroupDocument = string.Empty;
 
