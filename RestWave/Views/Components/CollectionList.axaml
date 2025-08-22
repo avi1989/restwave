@@ -1,0 +1,102 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:RestWave.Views.Components"
+             xmlns:viewModels="clr-namespace:RestWave.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="RestWave.Views.Components.CollectionList"
+             x:DataType="viewModels:CollectionsViewModel">
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <viewModels:CollectionsViewModel />
+    </Design.DataContext>
+    <DockPanel Background="Transparent">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16" Background="Transparent">
+            <TextBlock Classes="SectionHeader" Text="Collections" Margin="0,0,0,8" />
+            <Button Classes="Primary" Name="AddNewRequest" Click="CreateNewRequest_Click" HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="➕" FontSize="14" Margin="0,0,8,0" />
+                    <TextBlock Text="New Request" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        <TreeView ItemsSource="{Binding Collections}"
+                  SelectedItem="{Binding SelectedNode}"
+                  x:Name="CollectionsTreeView"
+                  Classes="Modern"
+                  Background="Transparent">
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem" x:DataType="viewModels:Node">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                </Style>
+            </TreeView.Styles>
+            <TreeView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Create New Request"
+                              Name="CreateNewRequestMenuItem"
+                              Click="CreateNewRequest_Click" />
+                    <MenuItem Header="Create New Collection"
+                              Name="CreateNewCollectionMenuItem"
+                              Click="CreateNewCollection_Click" />
+                </ContextMenu>
+            </TreeView.ContextMenu>
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding SubNodes}">
+                    <Border Background="Transparent"
+                            x:Name="ItemBorder"
+                            Padding="8,6"
+                            CornerRadius="6"
+                            Margin="0,1">
+                        <Border.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Rename"
+                                          Name="RenameMenuItem"
+                                          Click="Rename_Click" />
+                                <MenuItem Header="Open"
+                                          Name="OpenMenuItem"
+                                          Click="Open_Click"
+                                          IsVisible="{Binding !IsFolder}" />
+                                <MenuItem Header="Expand/Collapse"
+                                          Name="ExpandMenuItem"
+                                          Click="Open_Click"
+                                          IsVisible="{Binding IsFolder}" />
+                                <MenuItem Header="Delete"
+                                          Name="DeleteMenuItem"
+                                          Click="Delete_Click" />
+                                <Separator />
+                                <MenuItem Header="Create New Request"
+                                          Name="CreateNewRequestInFolderMenuItem"
+                                          Click="CreateNewRequest_Click" />
+                            </ContextMenu>
+                        </Border.ContextMenu>
+                        <StackPanel Orientation="Horizontal">
+                            <!-- Folder/File Icon -->
+                            <TextBlock
+                                Text="{Binding IsFolder, Converter={x:Static local:FolderIconConverter.Instance}}"
+                                VerticalAlignment="Center"
+                                Margin="0,0,8,0"
+                                FontSize="14" />
+                            <!-- Display Text -->
+                            <TextBlock Text="{Binding Title}"
+                                       IsVisible="{Binding !IsEditing}"
+                                       VerticalAlignment="Center"
+                                       FontWeight="Medium"
+                                       Foreground="{DynamicResource TextPrimary}" />
+                            <!-- Edit TextBox -->
+                            <TextBox Text="{Binding EditingText}"
+                                     IsVisible="{Binding IsEditing}"
+                                     x:Name="EditingTextBox"
+                                     Classes="Modern"
+                                     MinWidth="120"
+                                     VerticalAlignment="Center"
+                                     KeyDown="EditingTextBox_KeyDown"
+                                     LostFocus="EditingTextBox_LostFocus" />
+                        </StackPanel>
+                    </Border>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </DockPanel>
+</UserControl>

@@ -1,0 +1,64 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:RestWave.ViewModels.Responses"
+             xmlns:response="clr-namespace:RestWave.Views.Response"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="RestWave.Views.Response.ResponseView"
+             x:DataType="vm:ResponseViewModel">
+
+    <Design.DataContext>
+        <vm:ResponseViewModel />
+    </Design.DataContext>
+
+    <DockPanel>
+        <TextBlock Classes="SectionHeader" Text="Response" DockPanel.Dock="Top" />
+        <TabControl Classes="Modern">
+            <TabItem Header="Body">
+                <Grid>
+                    <response:StreamingResponseControl
+                        DataContext="{Binding}"
+                        x:DataType="vm:ResponseViewModel"
+                        IsVisible="{Binding IsStreaming}" 
+                        />
+                    <response:SimpleResponseControl 
+                        DataContext="{Binding}" 
+                        x:DataType="vm:ResponseViewModel"
+                        IsVisible="{Binding !IsStreaming}" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Headers">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Headers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{DynamicResource BorderLight}" 
+                                        BorderThickness="0,0,0,1" 
+                                        Padding="0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" MinWidth="120" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Key}" 
+                                                   Grid.Column="0"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextSecondary}"
+                                                   Margin="0,0,16,0"
+                                                   VerticalAlignment="Top" />
+                                        <TextBlock Text="{Binding Value}" 
+                                                   Grid.Column="1"
+                                                   TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextPrimary}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</UserControl>

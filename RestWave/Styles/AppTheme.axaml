@@ -1,0 +1,235 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Modern Button Styles -->
+    <Style Selector="Button.Primary">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.2" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button.Primary:pointerover">
+        <Setter Property="Background" Value="{DynamicResource PrimaryHover}" />
+    </Style>
+
+    <Style Selector="Button.Secondary">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderLight}" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.2" />
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.2" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button.Secondary:pointerover">
+        <Setter Property="Background" Value="{DynamicResource BackgroundSecondary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderMedium}" />
+    </Style>
+
+    <Style Selector="Button.Icon">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="Width" Value="36" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.2" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button.Icon:pointerover">
+        <Setter Property="Background" Value="{DynamicResource BackgroundSecondary}" />
+    </Style>
+
+    <!-- Enhanced TextBox Styles -->
+    <Style Selector="TextBox.Modern">
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderLight}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.2" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="TextBox.Modern:focus">
+        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}" />
+    </Style>
+
+    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource BackgroundPrimary}" />
+    </Style>
+
+    <Style Selector="TextBox.Modern:pointerover">
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderMedium}" />
+    </Style>
+
+    <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource BackgroundPrimary}" />
+    </Style>
+
+    <!-- Enhanced ComboBox -->
+    <Style Selector="ComboBox.Modern">
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderLight}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="MinWidth" Value="120" />
+    </Style>
+
+    <Style Selector="ComboBox:focus /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource BackgroundPrimary}" />
+    </Style>
+
+    <!-- Card Style for Light Theme -->
+    <Style Selector="Border.Card">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderLight}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="Effect">
+            <DropShadowEffect Color="Black" Opacity="0.04" OffsetX="0" OffsetY="1" BlurRadius="3" />
+        </Setter>
+    </Style>
+
+    <!-- Section Header Style -->
+    <Style Selector="TextBlock.SectionHeader">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+
+    <!-- Tab Control Enhancements -->
+    <Style Selector="TabControl.Modern">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TabControl.Modern TabItem">
+        <Setter Property="Padding" Value="16,10" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Margin" Value="0,0,4,0" />
+    </Style>
+
+    <!-- Tree View Enhancements -->
+    <Style Selector="TreeView.Modern">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TreeView">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TreeView /template/ Border">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TreeView /template/ ScrollViewer">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TreeViewItem.Modern">
+        <Setter Property="Padding" Value="4" />
+    </Style>
+
+    <Style Selector="TreeViewItem">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TreeViewItem /template/ Border">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TreeViewItem.Modern:selected /template/ Border#SelectionBorder">
+        <Setter Property="Background" Value="{DynamicResource PrimaryLight}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="TreeViewItem:pointerover /template/ Border#PART_Header">
+        <Setter Property="Background" Value="{DynamicResource BackgroundSecondary}" />
+    </Style>
+
+    <Style Selector="TreeViewItem:selected /template/ Border#PART_Header">
+        <Setter Property="Background" Value="{DynamicResource PrimaryLight}" />
+    </Style>
+
+    <!-- Status Colors -->
+    <Style Selector="TextBlock.Success">
+        <Setter Property="Foreground" Value="{DynamicResource SuccessColor}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="TextBlock.Error">
+        <Setter Property="Foreground" Value="{DynamicResource ErrorColor}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="TextBlock.Warning">
+        <Setter Property="Foreground" Value="{DynamicResource WarningColor}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Global Control Backgrounds -->
+    <Style Selector="UserControl">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TabControl">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TabItem">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ScrollViewer">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ScrollViewer /template/ Border">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ScrollViewer /template/ Grid">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="Grid">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="StackPanel">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="DockPanel">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+</Styles>

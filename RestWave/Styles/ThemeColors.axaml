@@ -1,0 +1,64 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="PrimaryColor">#2563EB</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryHover">#1D4ED8</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryLight">#FFFFFF</SolidColorBrush>
+
+            <!-- Secondary Colors -->
+            <SolidColorBrush x:Key="SecondaryColor">#64748B</SolidColorBrush>
+            <SolidColorBrush x:Key="SecondaryLight">#F1F5F9</SolidColorBrush>
+
+            <!-- Success/Error Colors -->
+            <SolidColorBrush x:Key="SuccessColor">#059669</SolidColorBrush>
+            <SolidColorBrush x:Key="ErrorColor">#DC2626</SolidColorBrush>
+            <SolidColorBrush x:Key="WarningColor">#D97706</SolidColorBrush>
+
+            <!-- Light Mode Background Colors -->
+            <SolidColorBrush x:Key="BackgroundPrimary">#AAAA</SolidColorBrush>
+            <SolidColorBrush x:Key="BackgroundSecondary">#F1F5F9</SolidColorBrush>
+            <SolidColorBrush x:Key="BackgroundTertiary">#E2E8F0</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBackground">#FFFFFF</SolidColorBrush>
+
+            <!-- Light Mode Text Colors -->
+            <SolidColorBrush x:Key="TextPrimary">#1E293B</SolidColorBrush>
+            <SolidColorBrush x:Key="TextSecondary">#64748B</SolidColorBrush>
+            <SolidColorBrush x:Key="TextMuted">#94A3B8</SolidColorBrush>
+
+            <!-- Light Mode Border Colors -->
+            <SolidColorBrush x:Key="BorderLight">#E2E8F0</SolidColorBrush>
+            <SolidColorBrush x:Key="BorderMedium">#CBD5E1</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <!-- Primary Colors (same for both themes) -->
+            <SolidColorBrush x:Key="PrimaryColor">#3B82F6</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryHover">#2563EB</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryLight">#1E3A8A</SolidColorBrush>
+
+            <!-- Secondary Colors -->
+            <SolidColorBrush x:Key="SecondaryColor">#94A3B8</SolidColorBrush>
+            <SolidColorBrush x:Key="SecondaryLight">#334155</SolidColorBrush>
+
+            <!-- Success/Error Colors (adjusted for dark theme) -->
+            <SolidColorBrush x:Key="SuccessColor">#10B981</SolidColorBrush>
+            <SolidColorBrush x:Key="ErrorColor">#EF4444</SolidColorBrush>
+            <SolidColorBrush x:Key="WarningColor">#F59E0B</SolidColorBrush>
+
+            <!-- Dark Mode Background Colors -->
+            <SolidColorBrush x:Key="BackgroundPrimary">#1E293B</SolidColorBrush>
+            <SolidColorBrush x:Key="BackgroundSecondary">#1E293B</SolidColorBrush>
+            <SolidColorBrush x:Key="BackgroundTertiary">#334155</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBackground">#1E293B</SolidColorBrush>
+
+            <!-- Dark Mode Text Colors -->
+            <SolidColorBrush x:Key="TextPrimary">#F1F5F9</SolidColorBrush>
+            <SolidColorBrush x:Key="TextSecondary">#CBD5E1</SolidColorBrush>
+            <SolidColorBrush x:Key="TextMuted">#94A3B8</SolidColorBrush>
+
+            <!-- Dark Mode Border Colors -->
+            <SolidColorBrush x:Key="BorderLight">#334155</SolidColorBrush>
+            <SolidColorBrush x:Key="BorderMedium">#475569</SolidColorBrush>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>
