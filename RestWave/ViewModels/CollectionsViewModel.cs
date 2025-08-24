@@ -84,12 +84,6 @@ public partial class CollectionsViewModel : ViewModelBase
     private string GetNodePath(Node node)
     {
         // Create a unique path for the node based on its hierarchy
-        var path = node.Title;
-        if (!string.IsNullOrEmpty(node.CollectionName))
-        {
-            path = $"{node.CollectionName}/{node.Title}";
-        }
-
-        return path;
+        return node.GetFullPath();
     }
 }

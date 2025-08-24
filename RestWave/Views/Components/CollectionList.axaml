@@ -53,22 +53,32 @@
                             <ContextMenu>
                                 <MenuItem Header="Rename"
                                           Name="RenameMenuItem"
-                                          Click="Rename_Click" />
+                                          Click="Rename_Click"
+                                          DataContext="{Binding}" />
                                 <MenuItem Header="Open"
                                           Name="OpenMenuItem"
                                           Click="Open_Click"
-                                          IsVisible="{Binding !IsFolder}" />
+                                          IsVisible="{Binding !IsFolder}"
+                                          DataContext="{Binding}" />
                                 <MenuItem Header="Expand/Collapse"
                                           Name="ExpandMenuItem"
                                           Click="Open_Click"
-                                          IsVisible="{Binding IsFolder}" />
+                                          IsVisible="{Binding IsFolder}"
+                                          DataContext="{Binding}" />
                                 <MenuItem Header="Delete"
                                           Name="DeleteMenuItem"
-                                          Click="Delete_Click" />
+                                          Click="Delete_Click"
+                                          DataContext="{Binding}" />
                                 <Separator />
                                 <MenuItem Header="Create New Request"
                                           Name="CreateNewRequestInFolderMenuItem"
-                                          Click="CreateNewRequest_Click" />
+                                          Click="CreateNewRequest_Click"
+                                          DataContext="{Binding}" />
+                                <MenuItem Header="Create New Folder"
+                                          Name="CreateNewFolderMenuItem"
+                                          Click="CreateNewFolder_Click"
+                                          IsVisible="{Binding IsFolder}"
+                                          DataContext="{Binding}" />
                             </ContextMenu>
                         </Border.ContextMenu>
                         <StackPanel Orientation="Horizontal">

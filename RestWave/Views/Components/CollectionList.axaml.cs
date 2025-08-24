@@ -235,9 +235,9 @@ public partial class CollectionList : UserControl
             var hitTest = inputElement.InputHitTest(e.GetPosition(visual));
             var dataContext = (hitTest as Control)?.DataContext;
 
-            if (dataContext is Node node && !node.IsFolder)
+            if (dataContext is Node node)
             {
-                _draggedNode = node;
+                _draggedNode = node; // Allow dragging both files and folders
             }
             else
             {
@@ -295,11 +295,30 @@ public partial class CollectionList : UserControl
 
             if (draggedNode != null && dataContext is Node targetNode && targetNode.IsFolder)
             {
-                // Move the file to the target collection
-                var requestsManager = new RequestsManager();
-                if (requestsManager.MoveFile(draggedNode.FilePath!, targetNode.CollectionName!))
+                // Prevent dropping a folder into itself or its descendants
+                if (draggedNode.IsFolder && (draggedNode == targetNode || targetNode.IsDescendantOf(draggedNode)))
                 {
-                    this.ViewModel.RefreshCollections(treeView);
+                    return;
+                }
+
+                var requestsManager = new RequestsManager();
+                bool success = false;
+
+                if (draggedNode.IsFolder)
+                {
+                    // Move folder to target folder
+                    success = requestsManager.MoveFolder(draggedNode.FilePath!, targetNode.FilePath!);
+                }
+                else
+                {
+                    // Move file to target folder
+                    success = requestsManager.MoveFileToFolder(draggedNode.FilePath!, targetNode.FilePath!);
+                }
+
+                if (success)
+                {
+                    RefreshAndWire(treeView);
+                    targetNode.IsExpanded = true;
                 }
             }
         }
@@ -377,37 +396,79 @@ public partial class CollectionList : UserControl
     // Context Menu Event Handlers
     private void CreateNewRequest_Click(object? sender, RoutedEventArgs e)
     {
-        var node = this.ViewModel.SelectedNode;
+        var menuItem = sender as MenuItem;
+        var node = menuItem?.DataContext as Node;
 
-        // If the context menu was triggered on an item, use that item's collection
-        // Otherwise, prompt user to select a collection or create in root
-        string? targetCollection = null;
+        // Fallback to selected node if context menu node is not available
+        if (node == null)
+        {
+            node = this.ViewModel.SelectedNode;
+        }
 
         if (node != null)
         {
-            // If it's a folder, use it as the target collection
-            if (node.IsFolder)
+            Node targetFolder = node;
+            
+            // If it's a file, use its parent folder
+            if (!node.IsFolder && node.Parent != null)
             {
-                targetCollection = node.CollectionName ?? node.Title;
+                targetFolder = node.Parent;
+            }
+            
+            if (targetFolder.IsFolder && targetFolder.FilePath != null)
+            {
+                var requestName = $"New Request {DateTime.Now:HHmmss}";
+                var requestsManager = new RequestsManager();
+                
+                try
+                {
+                    System.Diagnostics.Debug.WriteLine($"Creating request '{requestName}' in '{targetFolder.FilePath}'");
+                    
+                    // Create a new empty request
+                    var newRequest = new RequestViewModel
+                    {
+                        Url = "https://",
+                        Method = "GET"
+                    };
+
+                    // Save the request to the specific folder
+                    requestsManager.SaveRequestToFolder(newRequest, targetFolder.FilePath, requestName);
+                    
+                    var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+                    RefreshAndWire(treeView);
+                    
+                    // Expand the target folder and find the new request
+                    targetFolder.IsExpanded = true;
+                    ExpandNodeInTreeView(targetFolder);
+                    
+                    // Find and rename the newly created request
+                    var newRequestPath = Path.Combine(targetFolder.FilePath, $"{requestName}.json");
+                    var newRequestNode = FindNodeByPath(this.ViewModel.Collections.ToList(), newRequestPath);
+                    
+                    if (newRequestNode != null)
+                    {
+                        StartRenaming(newRequestNode);
+                        System.Diagnostics.Debug.WriteLine("Found and starting rename of new request");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("Could not find newly created request");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error creating new request: {ex.Message}");
+                }
             }
             else
             {
-                // If it's a file, use its parent collection
-                targetCollection = node.CollectionName;
+                System.Diagnostics.Debug.WriteLine("No valid target folder found");
             }
         }
-       
-        // Create a new request dialog or add to the selected collection
-        var newRequest = CreateNewRequestInCollection(targetCollection);
-        
-        if (node != null)
+        else
         {
-            node.IsExpanded = true;
-            ExpandNodeInTreeView(node);
-
+            System.Diagnostics.Debug.WriteLine("No node available for new request creation");
         }
-        var requestNode = this.ViewModel.Collections.First(x => x.Title == targetCollection)?.SubNodes?.First(x => x.Title == newRequest)!;
-        StartRenaming(requestNode);
     }
     
     private void ExpandNodeInTreeView(Node node)
@@ -470,36 +531,6 @@ public partial class CollectionList : UserControl
         }
     }
 
-    private string CreateNewRequestInCollection(string? collectionName)
-    {
-        // This method should open a dialog to create a new request
-        // You might want to integrate this with your existing request creation logic
-        var requestsManager = new RequestsManager();
-
-        // For now, create a simple default request
-        // You may want to show a dialog here to get the request name and details
-        var requestName = $"New Request {DateTime.Now:HHmmss}";
-
-        if (string.IsNullOrEmpty(collectionName))
-        {
-            // If no collection specified, use Default collection
-            collectionName = "Default";
-        }
-
-        // Create a new empty request
-        var newRequest = new RequestViewModel
-        {
-            Url = "https://",
-            Method = "GET"
-        };
-
-        // Save the new request
-        requestsManager.SaveRequestToCollection(newRequest, collectionName, requestName);
-
-        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
-        this.ViewModel.RefreshCollections(treeView);
-        return requestName;
-    }
 
     private void OpenRequest(Node node)
     {
@@ -640,5 +671,90 @@ public partial class CollectionList : UserControl
         var node = this.ViewModel.Collections.First(n => n.Title == collectionName && n.IsFolder);
 
         StartRenaming(node);
+    }
+
+    private void CreateNewFolder_Click(object? sender, RoutedEventArgs e)
+    {
+        var menuItem = sender as MenuItem;
+        var parentNode = menuItem?.DataContext as Node;
+
+        if (parentNode != null && parentNode.IsFolder && parentNode.FilePath != null)
+        {
+            var folderName = $"New Folder {DateTime.Now:HHmmss}";
+            var requestsManager = new RequestsManager();
+            
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"Creating folder '{folderName}' in '{parentNode.FilePath}'");
+                requestsManager.CreateNestedFolder(parentNode.FilePath, folderName);
+                
+                var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+                RefreshAndWire(treeView);
+                
+                // Find and rename the newly created folder
+                var newFolderPath = Path.Combine(parentNode.FilePath, folderName);
+                System.Diagnostics.Debug.WriteLine($"Looking for new folder at: {newFolderPath}");
+                
+                var newNode = FindNodeByPath(this.ViewModel.Collections.ToList(), newFolderPath);
+                if (newNode != null)
+                {
+                    parentNode.IsExpanded = true;
+                    ExpandNodeInTreeView(parentNode);
+                    StartRenaming(newNode);
+                    System.Diagnostics.Debug.WriteLine("Found and starting rename of new folder");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Could not find newly created folder");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error creating nested folder: {ex.Message}");
+            }
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"Parent node validation failed. ParentNode: {parentNode}, IsFolder: {parentNode?.IsFolder}, FilePath: {parentNode?.FilePath}");
+        }
+    }
+
+    private Node? FindNodeByPath(Node parentNode, string targetPath)
+    {
+        if (parentNode.SubNodes == null)
+            return null;
+
+        foreach (var child in parentNode.SubNodes)
+        {
+            if (string.Equals(child.FilePath, targetPath, StringComparison.OrdinalIgnoreCase))
+                return child;
+            
+            if (child.IsFolder && child.SubNodes != null)
+            {
+                var found = FindNodeByPath(child, targetPath);
+                if (found != null)
+                    return found;
+            }
+        }
+        
+        return null;
+    }
+
+    private Node? FindNodeByPath(IList<Node> nodes, string targetPath)
+    {
+        foreach (var node in nodes)
+        {
+            if (string.Equals(node.FilePath, targetPath, StringComparison.OrdinalIgnoreCase))
+                return node;
+            
+            if (node.IsFolder && node.SubNodes != null)
+            {
+                var found = FindNodeByPath(node, targetPath);
+                if (found != null)
+                    return found;
+            }
+        }
+        
+        return null;
     }
 }
