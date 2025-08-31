@@ -34,7 +34,8 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="{DynamicResource CardBackground}" Padding="8,4">
             <MenuItem Header="_File">
-                <MenuItem Header="_Open..." />
+                <MenuItem Header="New" Command="{Binding CreateNewRequestCommand}"/>
+                <MenuItem Header="_Open in Explorer" Click="OnOpenInExplorer"/>
                 <Separator />
                 <MenuItem Header="_Exit" />
             </MenuItem>

@@ -53,4 +53,52 @@ public partial class MainWindow : Window
         var settingsWindow = new SettingsWindow();
         await settingsWindow.ShowDialog(this);
     }
+
+    private void OnOpenInExplorer(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(config.RequestsDirectoryPath))
+        {
+            return;
+        }
+
+        try
+        {
+            if (!Directory.Exists(config.RequestsDirectoryPath))
+            {
+                Directory.CreateDirectory(config.RequestsDirectoryPath);
+            }
+
+            if (OperatingSystem.IsWindows())
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    Arguments = config.RequestsDirectoryPath,
+                    UseShellExecute = true
+                });
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "xdg-open",
+                    Arguments = config.RequestsDirectoryPath,
+                    UseShellExecute = true
+                });
+            }
+            else if (OperatingSystem.IsMacOS())
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "open",
+                    Arguments = config.RequestsDirectoryPath,
+                    UseShellExecute = true
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to open directory in explorer: {ex.Message}");
+        }
+    }
 }

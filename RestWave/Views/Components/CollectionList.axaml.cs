@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Messaging;
 using RestWave.Services;
 using RestWave.ViewModels;
 using RestWave.ViewModels.Requests;
@@ -30,9 +32,62 @@ public partial class CollectionList : UserControl
         InitializeComponent();
         this.KeyDown += OnKeyDown;
         this.Loaded += OnHttpViewLoaded;
+
+        WeakReferenceMessenger.Default.Register<AppViewModel.CreateRequestCommandMessage>(this, OnCreateRequestCommand);
     }
 
     private CollectionsViewModel ViewModel => (CollectionsViewModel)DataContext!;
+
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
+        WeakReferenceMessenger.Default.UnregisterAll(this);
+        base.OnUnloaded(e);
+    }
+
+    private void OnCreateRequestCommand(object recipient, AppViewModel.CreateRequestCommandMessage message)
+    {
+        var requestsManager = new RequestsManager();
+        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+        if (treeView == null)
+        {
+            Debug.WriteLine("Tree View Not Found");
+            return;
+        }
+
+        var node = treeView.SelectedItem as Node;
+        if (node != null)
+        {
+            Node targetFolder = node;
+
+            if (!node.IsFolder && node.Parent != null)
+            {
+                targetFolder = node.Parent;
+            }
+
+            if (targetFolder.IsFolder && targetFolder.FilePath != null)
+            {
+                var newRequest = new RequestViewModel
+                {
+                    Url = "https://",
+                    Method = "GET"
+                };
+                requestsManager.SaveRequestToFolder(newRequest, targetFolder.FilePath, message.RequestName);
+                RefreshAndWire(treeView);
+                targetFolder.IsExpanded = true;
+                ExpandNodeInTreeView(targetFolder);
+                var newRequestPath = Path.Combine(targetFolder.FilePath, $"{message.RequestName}.json");
+                var newRequestNode = FindNodeByPath(this.ViewModel.Collections.ToList(), newRequestPath);
+                if (newRequestNode != null)
+                {
+                    StartRenaming(newRequestNode);
+                }
+            }
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("No node available for new request creation");
+        }
+    }
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
@@ -43,6 +98,7 @@ public partial class CollectionList : UserControl
         {
             this.ViewModel.Collections.Add(collection);
         }
+
         // Apply persisted expanded folders state and subscribe to changes
         ApplyExpandedFoldersFromConfig();
         SubscribeFolderNodes();
@@ -62,6 +118,7 @@ public partial class CollectionList : UserControl
         {
             node.PropertyChanged -= NodeOnPropertyChanged;
         }
+
         _subscribedFolderNodes.Clear();
     }
 
@@ -374,7 +431,8 @@ public partial class CollectionList : UserControl
 
         foreach (var collection in this.ViewModel.Collections.Where(n => n.IsFolder))
         {
-            var match = collection.SubNodes?.FirstOrDefault(f => string.Equals(f.FilePath, lastPath, StringComparison.OrdinalIgnoreCase));
+            var match = collection.SubNodes?.FirstOrDefault(f =>
+                string.Equals(f.FilePath, lastPath, StringComparison.OrdinalIgnoreCase));
             if (match != null)
             {
                 target = match;
@@ -389,6 +447,7 @@ public partial class CollectionList : UserControl
             {
                 parentCollection.IsExpanded = true;
             }
+
             this.ViewModel.SelectedNode = target;
         }
     }
@@ -396,79 +455,8 @@ public partial class CollectionList : UserControl
     // Context Menu Event Handlers
     private void CreateNewRequest_Click(object? sender, RoutedEventArgs e)
     {
-        var menuItem = sender as MenuItem;
-        var node = menuItem?.DataContext as Node;
-
-        // Fallback to selected node if context menu node is not available
-        if (node == null)
-        {
-            node = this.ViewModel.SelectedNode;
-        }
-
-        if (node != null)
-        {
-            Node targetFolder = node;
-
-            // If it's a file, use its parent folder
-            if (!node.IsFolder && node.Parent != null)
-            {
-                targetFolder = node.Parent;
-            }
-
-            if (targetFolder.IsFolder && targetFolder.FilePath != null)
-            {
-                var requestName = $"New Request {DateTime.Now:HHmmss}";
-                var requestsManager = new RequestsManager();
-
-                try
-                {
-                    System.Diagnostics.Debug.WriteLine($"Creating request '{requestName}' in '{targetFolder.FilePath}'");
-
-                    // Create a new empty request
-                    var newRequest = new RequestViewModel
-                    {
-                        Url = "https://",
-                        Method = "GET"
-                    };
-
-                    // Save the request to the specific folder
-                    requestsManager.SaveRequestToFolder(newRequest, targetFolder.FilePath, requestName);
-
-                    var treeView = this.FindControl<TreeView>("CollectionsTreeView");
-                    RefreshAndWire(treeView);
-
-                    // Expand the target folder and find the new request
-                    targetFolder.IsExpanded = true;
-                    ExpandNodeInTreeView(targetFolder);
-
-                    // Find and rename the newly created request
-                    var newRequestPath = Path.Combine(targetFolder.FilePath, $"{requestName}.json");
-                    var newRequestNode = FindNodeByPath(this.ViewModel.Collections.ToList(), newRequestPath);
-
-                    if (newRequestNode != null)
-                    {
-                        StartRenaming(newRequestNode);
-                        System.Diagnostics.Debug.WriteLine("Found and starting rename of new request");
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine("Could not find newly created request");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error creating new request: {ex.Message}");
-                }
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("No valid target folder found");
-            }
-        }
-        else
-        {
-            System.Diagnostics.Debug.WriteLine("No node available for new request creation");
-        }
+        var requestName = $"Request {DateTime.Now:HHmmss}";
+        WeakReferenceMessenger.Default.Send(new AppViewModel.CreateRequestCommandMessage(requestName));
     }
 
     private void ExpandNodeInTreeView(Node node)
@@ -715,7 +703,8 @@ public partial class CollectionList : UserControl
         }
         else
         {
-            System.Diagnostics.Debug.WriteLine($"Parent node validation failed. ParentNode: {parentNode}, IsFolder: {parentNode?.IsFolder}, FilePath: {parentNode?.FilePath}");
+            System.Diagnostics.Debug.WriteLine(
+                $"Parent node validation failed. ParentNode: {parentNode}, IsFolder: {parentNode?.IsFolder}, FilePath: {parentNode?.FilePath}");
         }
     }
 
