@@ -53,7 +53,7 @@ public partial class StreamingResponseControl : UserControl
     {
         if (e.AddedItems.Count == 0 || e.AddedItems[0] == null)
             return;
-        
+
         this.ViewModel.ChangeSelectedGroup(e.AddedItems[0]!.ToString()!);
     }
 }

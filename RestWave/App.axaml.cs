@@ -18,7 +18,15 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        this._configManager.LoadConfiguration();
+        var config = this._configManager.LoadConfiguration();
+
+        // Apply saved theme
+        this.RequestedThemeVariant = config.Theme switch
+        {
+            "Light" => Avalonia.Styling.ThemeVariant.Light,
+            "Dark" => Avalonia.Styling.ThemeVariant.Dark,
+            _ => Avalonia.Styling.ThemeVariant.Default // System
+        };
     }
 
     public override void OnFrameworkInitializationCompleted()

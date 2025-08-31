@@ -51,7 +51,7 @@ public class ConfigManager
         return this.config;
     }
 
-    private void Write()
+    public void Write()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(this.configPath)!);
         string json = System.Text.Json.JsonSerializer.Serialize(this.config, new System.Text.Json.JsonSerializerOptions
@@ -77,6 +77,12 @@ public class ConfigManager
     public void SaveLastOpenedFilePath(string? filePath)
     {
         this.config.LastOpenedFilePath = filePath;
+        Write();
+    }
+
+    public void SaveTheme(string theme)
+    {
+        this.config.Theme = theme;
         Write();
     }
 

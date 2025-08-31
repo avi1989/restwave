@@ -9,17 +9,17 @@ public partial class Node : ViewModelBase
     [ObservableProperty] private ObservableCollection<Node>? _subNodes;
 
     [ObservableProperty] private string title = string.Empty;
-    
+
     [ObservableProperty] private string? _filePath;
-    
+
     [ObservableProperty] private bool _isFolder;
-    
+
     [ObservableProperty] private string? _collectionName;
-    
+
     [ObservableProperty] private bool _isEditing;
-    
+
     [ObservableProperty] private string _editingText = string.Empty;
-    
+
     [ObservableProperty] private bool _isExpanded;
 
     [ObservableProperty] private Node? _parent;

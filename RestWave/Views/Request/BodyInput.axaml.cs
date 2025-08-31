@@ -59,7 +59,7 @@ namespace RestWave.Views.Request
         protected override void OnDataContextChanged(EventArgs e)
         {
             base.OnDataContextChanged(e);
-            
+
             if (DataContext is Requests_JsonBodyInputViewModel vm && _jsonEditor != null)
             {
                 _jsonEditor.Text = vm.JsonText;
@@ -99,7 +99,7 @@ namespace RestWave.Views.Request
         private void InsertMatchingBrace(TextDocument document, Caret caret, char openChar, char closeChar)
         {
             var offset = caret.Offset;
-            
+
             if (openChar == '{')
             {
                 // For braces and brackets, add proper indentation
@@ -107,7 +107,7 @@ namespace RestWave.Views.Request
                 var currentLineText = document.GetText(currentLine.Offset, currentLine.Length);
                 var indent = GetIndentation(currentLineText);
                 var nextIndent = indent + "  "; // Add 2 spaces for indentation
-                
+
                 var text = $"{openChar}\n{nextIndent}\n{indent}{closeChar}";
                 document.Insert(offset, text);
                 caret.Offset = offset + openChar.ToString().Length + 1 + nextIndent.Length; // Position cursor after newline and indent
@@ -120,7 +120,7 @@ namespace RestWave.Views.Request
                 caret.Offset = offset + 1;
             }
         }
-        
+
         private string GetIndentation(string lineText)
         {
             var indent = "";
@@ -137,7 +137,7 @@ namespace RestWave.Views.Request
         private void InsertMatchingQuote(TextDocument document, Caret caret, char quoteChar)
         {
             var offset = caret.Offset;
-            
+
             // Check if we're next to an existing quote
             if (offset < document.TextLength && document.GetCharAt(offset) == quoteChar)
             {
@@ -145,7 +145,7 @@ namespace RestWave.Views.Request
                 caret.Offset = offset + 1;
                 return;
             }
-            
+
             // Insert matching quotes
             var text = $"{quoteChar}{quoteChar}";
             document.Insert(offset, text);

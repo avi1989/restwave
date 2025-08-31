@@ -23,11 +23,11 @@ public partial class HttpViewModel : ViewModelBase
     [ObservableProperty] private CollectionsViewModel _collections;
 
     public string SubmitButtonText => this.Response.IsLoading ? "Cancel" : "Invoke";
-    
+
     public string SubmitButtonIcon => this.Response.IsLoading ? "◼" : "▶";
 
     public string[] Methods { get; } = ["GET", "PUT", "POST", "DELETE"];
-    
+
     partial void OnResponseChanged(ResponseViewModel value)
     {
         // Subscribe to property changes on the new ResponseViewModel

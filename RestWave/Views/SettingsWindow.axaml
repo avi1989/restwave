@@ -1,0 +1,70 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viewModels="clr-namespace:RestWave.ViewModels"
+        x:Class="RestWave.Views.SettingsWindow"
+        Title="Settings"
+        Width="500"
+        Height="550"
+        WindowStartupLocation="CenterOwner"
+        x:DataType="viewModels:SettingsViewModel">
+    <Design.DataContext>
+        <viewModels:SettingsViewModel />
+    </Design.DataContext>
+    <Window.Styles>
+        <StyleInclude Source="/Styles/AppTheme.axaml" />
+    </Window.Styles>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Styles/ThemeColors.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <ScrollViewer>
+        <Border Classes="Card">
+            <StackPanel Spacing="20">
+                <TextBlock Text="Settings" FontSize="24" FontWeight="Bold"
+                           Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,10" />
+
+                <!-- REST Files Path Section -->
+                <Border Classes="Card">
+                    <StackPanel Spacing="15">
+                        <TextBlock Text="REST Files Path" Classes="SectionHeader" />
+                        <TextBlock Text="Choose the directory containing your REST request files"
+                                   Foreground="{DynamicResource TextSecondary}" FontSize="13" />
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBox x:Name="PathTextBox" Classes="Modern"
+                                     Text="{Binding RequestFilePath}"
+                                     Watermark="Select REST files directory..."
+                                     Grid.Column="0" Margin="0,0,10,0" />
+                            <Button Content="Browse..." Classes="Secondary"
+                                    Grid.Column="1" Click="OnBrowseClick" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Theme Section -->
+                <Border Classes="Card">
+                    <StackPanel Spacing="15">
+                        <TextBlock Text="Theme" Classes="SectionHeader" />
+                        <TextBlock Text="Choose your preferred application theme"
+                                   Foreground="{DynamicResource TextSecondary}" FontSize="13" />
+
+                        <ComboBox x:Name="ThemeComboBox" Classes="Modern"
+                                  MinWidth="150" HorizontalAlignment="Left"
+                                  ItemsSource="{Binding AvailableThemes}"
+                                  SelectedItem="{Binding Theme, Mode=TwoWay}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Action Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
+                    <Button Content="Cancel" Classes="Secondary" Click="OnCancelClick" MinWidth="80" />
+                    <Button Content="Save" Classes="Primary" Click="OnSaveClick" MinWidth="80" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</Window>

@@ -13,13 +13,13 @@ public partial class JsonBodyInputViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _hasValidationError;
-    
+
     partial void OnJsonTextChanged(string value)
     {
         ValidateJson(value);
     }
 
-    
+
     public void ValidateJson(string json)
     {
         if (string.IsNullOrWhiteSpace(json))

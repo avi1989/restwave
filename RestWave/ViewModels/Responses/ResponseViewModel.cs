@@ -32,8 +32,8 @@ public partial class ResponseViewModel : ViewModelBase
 
     public void ChangeSelectedGroup(string group)
     {
-        SelectedGroup = group; 
-    
+        SelectedGroup = group;
+
         if (GroupedResponses.TryGetValue(group, out var value))
         {
             SelectedGroupDocument = value;
@@ -82,10 +82,10 @@ public partial class ResponseViewModel : ViewModelBase
                             {
                                 continue;
                             }
-                            
-                            var prettyJson = JsonSerializer.Serialize(jsonResult.RootElement, new JsonSerializerOptions 
-                            { 
-                                WriteIndented = true 
+
+                            var prettyJson = JsonSerializer.Serialize(jsonResult.RootElement, new JsonSerializerOptions
+                            {
+                                WriteIndented = true
                             });
                             GroupedResponses[property.Name] += "\n\n";
                             GroupedResponses[property.Name] += "```";
@@ -106,13 +106,13 @@ public partial class ResponseViewModel : ViewModelBase
                         GroupedResponses.Add(property.Name, document);
                         GroupedKeys.Add(property.Name);
                     }
-                    
+
                     if (SelectedGroup == property.Name)
                     {
                         SelectedGroupDocument = GroupedResponses[property.Name];
                     }
                 }
-                
+
                 Console.WriteLine(GroupedResponses["data"]);
 
                 break;

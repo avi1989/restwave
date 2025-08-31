@@ -408,22 +408,22 @@ public partial class CollectionList : UserControl
         if (node != null)
         {
             Node targetFolder = node;
-            
+
             // If it's a file, use its parent folder
             if (!node.IsFolder && node.Parent != null)
             {
                 targetFolder = node.Parent;
             }
-            
+
             if (targetFolder.IsFolder && targetFolder.FilePath != null)
             {
                 var requestName = $"New Request {DateTime.Now:HHmmss}";
                 var requestsManager = new RequestsManager();
-                
+
                 try
                 {
                     System.Diagnostics.Debug.WriteLine($"Creating request '{requestName}' in '{targetFolder.FilePath}'");
-                    
+
                     // Create a new empty request
                     var newRequest = new RequestViewModel
                     {
@@ -433,18 +433,18 @@ public partial class CollectionList : UserControl
 
                     // Save the request to the specific folder
                     requestsManager.SaveRequestToFolder(newRequest, targetFolder.FilePath, requestName);
-                    
+
                     var treeView = this.FindControl<TreeView>("CollectionsTreeView");
                     RefreshAndWire(treeView);
-                    
+
                     // Expand the target folder and find the new request
                     targetFolder.IsExpanded = true;
                     ExpandNodeInTreeView(targetFolder);
-                    
+
                     // Find and rename the newly created request
                     var newRequestPath = Path.Combine(targetFolder.FilePath, $"{requestName}.json");
                     var newRequestNode = FindNodeByPath(this.ViewModel.Collections.ToList(), newRequestPath);
-                    
+
                     if (newRequestNode != null)
                     {
                         StartRenaming(newRequestNode);
@@ -470,7 +470,7 @@ public partial class CollectionList : UserControl
             System.Diagnostics.Debug.WriteLine("No node available for new request creation");
         }
     }
-    
+
     private void ExpandNodeInTreeView(Node node)
     {
         var treeView = this.FindControl<TreeView>("CollectionsTreeView");
@@ -682,19 +682,19 @@ public partial class CollectionList : UserControl
         {
             var folderName = $"New Folder {DateTime.Now:HHmmss}";
             var requestsManager = new RequestsManager();
-            
+
             try
             {
                 System.Diagnostics.Debug.WriteLine($"Creating folder '{folderName}' in '{parentNode.FilePath}'");
                 requestsManager.CreateNestedFolder(parentNode.FilePath, folderName);
-                
+
                 var treeView = this.FindControl<TreeView>("CollectionsTreeView");
                 RefreshAndWire(treeView);
-                
+
                 // Find and rename the newly created folder
                 var newFolderPath = Path.Combine(parentNode.FilePath, folderName);
                 System.Diagnostics.Debug.WriteLine($"Looking for new folder at: {newFolderPath}");
-                
+
                 var newNode = FindNodeByPath(this.ViewModel.Collections.ToList(), newFolderPath);
                 if (newNode != null)
                 {
@@ -728,7 +728,7 @@ public partial class CollectionList : UserControl
         {
             if (string.Equals(child.FilePath, targetPath, StringComparison.OrdinalIgnoreCase))
                 return child;
-            
+
             if (child.IsFolder && child.SubNodes != null)
             {
                 var found = FindNodeByPath(child, targetPath);
@@ -736,7 +736,7 @@ public partial class CollectionList : UserControl
                     return found;
             }
         }
-        
+
         return null;
     }
 
@@ -746,7 +746,7 @@ public partial class CollectionList : UserControl
         {
             if (string.Equals(node.FilePath, targetPath, StringComparison.OrdinalIgnoreCase))
                 return node;
-            
+
             if (node.IsFolder && node.SubNodes != null)
             {
                 var found = FindNodeByPath(node, targetPath);
@@ -754,7 +754,7 @@ public partial class CollectionList : UserControl
                     return found;
             }
         }
-        
+
         return null;
     }
 }

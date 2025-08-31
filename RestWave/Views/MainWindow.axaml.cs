@@ -37,6 +37,7 @@ public partial class MainWindow : Window
                 {
                     config.RequestsDirectoryPath = result;
                     this.configManager.SaveConfig(result);
+                    this.ViewModel.HttpViewModel.Collections.RefreshCollections(null);
                 }
                 else
                 {
@@ -47,5 +48,9 @@ public partial class MainWindow : Window
         };
     }
 
-
+    private async void OnSettingsClick(object? sender, RoutedEventArgs e)
+    {
+        var settingsWindow = new SettingsWindow();
+        await settingsWindow.ShowDialog(this);
+    }
 }

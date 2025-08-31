@@ -3,10 +3,18 @@
         x:Class="RestWave.Views.ConfigWindow"
         Title="Configuration"
         Width="400" Height="200">
-    <StackPanel Margin="20">
-        <TextBlock Text="Set Repo Path" Margin="0,0,0,10" FontWeight="Bold"/>
-        <TextBox x:Name="RepoPathTextBox" Watermark="Enter repo path..." Margin="0,0,0,10"/>
-        <Button Content="Save" HorizontalAlignment="Right" Width="80" Click="OnSaveClick"/>
-    </StackPanel>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Styles/ThemeColors.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Border Classes="Card">
+        <StackPanel Margin="20">
+            <TextBlock Text="Set Repo Path" Margin="0,0,0,10" FontWeight="Bold" />
+            <TextBox x:Name="RepoPathTextBox" Watermark="Enter repo path..." Margin="0,0,0,10" />
+            <Button Content="Save" HorizontalAlignment="Right" Width="80" Click="OnSaveClick" />
+        </StackPanel>
+    </Border>
 </Window>
-

@@ -29,7 +29,7 @@ public class RequestsManager
         {
             Directory.CreateDirectory(this.config.RequestsDirectoryPath!);
         }
-        
+
         var rootDirectories = System.IO.Directory.GetDirectories(this.config.RequestsDirectoryPath!);
         var collections = new List<Node>();
 
@@ -52,7 +52,7 @@ public class RequestsManager
 
         var dirName = Path.GetFileName(directoryPath)!;
         var collectionName = parentCollection ?? dirName;
-        
+
         var folderNode = new Node
         {
             Title = dirName,
@@ -67,8 +67,8 @@ public class RequestsManager
         var requests = Directory.GetFiles(directoryPath, "*.json").Select(file =>
         {
             var fileName = Path.GetFileNameWithoutExtension(file)!;
-            return new Node 
-            { 
+            return new Node
+            {
                 Title = fileName,
                 FilePath = file,
                 IsFolder = false,
@@ -219,21 +219,21 @@ public class RequestsManager
 
             var fileName = Path.GetFileName(sourceFilePath);
             var targetCollectionPath = Path.Combine(this.config.RequestsDirectoryPath!, targetCollectionName);
-            
+
             if (!Directory.Exists(targetCollectionPath))
             {
                 Directory.CreateDirectory(targetCollectionPath);
             }
 
             var targetFilePath = Path.Combine(targetCollectionPath, fileName);
-            
+
             // Avoid overwriting existing files
             if (File.Exists(targetFilePath))
             {
                 var baseName = Path.GetFileNameWithoutExtension(fileName);
                 var extension = Path.GetExtension(fileName);
                 var counter = 1;
-                
+
                 do
                 {
                     fileName = $"{baseName}_{counter}{extension}";
@@ -262,7 +262,7 @@ public class RequestsManager
             var directory = Path.GetDirectoryName(filePath)!;
             var extension = Path.GetExtension(filePath);
             var newFilePath = Path.Combine(directory, $"{newName}{extension}");
-            
+
             if (File.Exists(newFilePath))
                 return false; // Don't overwrite existing files
 
@@ -284,7 +284,7 @@ public class RequestsManager
 
             var parentDirectory = Path.GetDirectoryName(collectionPath)!;
             var newCollectionPath = Path.Combine(parentDirectory, newName);
-            
+
             if (Directory.Exists(newCollectionPath))
                 return false; // Don't overwrite existing directories
 
@@ -312,7 +312,7 @@ public class RequestsManager
             {
                 var counter = 1;
                 var baseName = folderName;
-                
+
                 do
                 {
                     folderName = $"{baseName}_{counter}";
@@ -347,7 +347,7 @@ public class RequestsManager
                 var baseName = Path.GetFileNameWithoutExtension(fileName);
                 var extension = Path.GetExtension(fileName);
                 var counter = 1;
-                
+
                 do
                 {
                     fileName = $"{baseName}_{counter}{extension}";

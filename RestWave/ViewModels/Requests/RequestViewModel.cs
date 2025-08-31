@@ -4,7 +4,8 @@ namespace RestWave.ViewModels.Requests;
 
 public partial class RequestViewModel : ViewModelBase
 {
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsBodyEnabled))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsBodyEnabled))]
     private string method = "POST";
 
     [ObservableProperty] private string url = "https://echo.websocket.org/.sse";
