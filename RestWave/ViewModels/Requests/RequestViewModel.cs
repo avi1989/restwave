@@ -6,9 +6,9 @@ public partial class RequestViewModel : ViewModelBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsBodyEnabled))]
-    private string method = "POST";
+    private string method = "GET";
 
-    [ObservableProperty] private string url = "https://echo.websocket.org/.sse";
+    [ObservableProperty] private string url = "";
 
     [ObservableProperty] private HeadersInputViewModel headersInput = new();
 

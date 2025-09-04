@@ -1,6 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Text.Json;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using AvaloniaEdit;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
@@ -15,7 +18,8 @@ namespace RestWave.Views.Request
     public partial class BodyInput : UserControl
     {
         private TextEditor? _jsonEditor;
-
+        public JsonBodyInputViewModel ViewModel => (JsonBodyInputViewModel)this.DataContext!;
+ 
         public BodyInput()
         {
             InitializeComponent();
@@ -59,11 +63,31 @@ namespace RestWave.Views.Request
         protected override void OnDataContextChanged(EventArgs e)
         {
             base.OnDataContextChanged(e);
+            
+            if (this.ViewModel != null)
+            {
+                this.ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            }
+
 
             if (DataContext is Requests_JsonBodyInputViewModel vm && _jsonEditor != null)
             {
                 _jsonEditor.Text = vm.JsonText;
-
+                vm.PropertyChanged += OnViewModelPropertyChanged;
+            }
+        }
+        
+        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(JsonBodyInputViewModel.JsonText) && 
+                _jsonEditor != null && 
+                DataContext is Requests_JsonBodyInputViewModel vm)
+            {
+                // Only update if the text is actually different to avoid infinite loops
+                if (_jsonEditor.Text != vm.JsonText)
+                {
+                    _jsonEditor.Text = vm.JsonText;
+                }
             }
         }
 
@@ -150,6 +174,22 @@ namespace RestWave.Views.Request
             var text = $"{quoteChar}{quoteChar}";
             document.Insert(offset, text);
             caret.Offset = offset + 1;
+        }
+
+        private void FormatJsonButton_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (this.ViewModel.HasValidationError)
+            {
+                return;
+            }
+            
+            var jsonDocument = JsonDocument.Parse(this.ViewModel.JsonText);
+            var formattedJson = JsonSerializer.Serialize(jsonDocument, new JsonSerializerOptions 
+            { 
+                WriteIndented = true 
+            });
+
+            this.ViewModel.JsonText = formattedJson;
         }
     }
 }

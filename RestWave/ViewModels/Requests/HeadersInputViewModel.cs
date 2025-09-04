@@ -8,8 +8,8 @@ public partial class HeadersInputViewModel : ViewModelBase
     [ObservableProperty]
     private ObservableCollection<HttpHeaderItemViewModel> headers = new() { new HttpHeaderItemViewModel()
     {
-        Key = "Authorization",
-        Value = "Ya ya ya"
+        Key = "",
+        Value = ""
     }};
 
     public void AddNewHeader()

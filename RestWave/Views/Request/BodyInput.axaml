@@ -12,20 +12,38 @@
         <requests:JsonBodyInputViewModel />
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto,*,Auto">
-        <avaloniaedit:TextEditor
-            Grid.Row="1"
-            Name="JsonEditor"
-            FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
-            HorizontalScrollBarVisibility="Auto"
-            VerticalScrollBarVisibility="Auto"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            MinHeight="200"
-            ShowLineNumbers="True">
-        </avaloniaedit:TextEditor>
+    <Grid RowDefinitions="*,Auto">
+        <!-- Text Editor with overlaid button -->
+        <Grid Grid.Row="0">
+            <avaloniaedit:TextEditor
+                Name="JsonEditor"
+                FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollBarVisibility="Auto"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                MinHeight="200"
+                ShowLineNumbers="True">
+            </avaloniaedit:TextEditor>
+            
+            <!-- Embedded button overlay - top right -->
+            <Button HorizontalAlignment="Right" 
+                    VerticalAlignment="Top"
+                    Margin="10,10"
+                    Click="FormatJsonButton_OnClick"
+                    Background="Transparent"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                    Padding="8,4"
+                    CornerRadius="3"
+                    Opacity="0.8"
+                    ToolTip.Tip="Format JSON">
+                🧹
+            </Button>
+        </Grid>
 
-        <Border Grid.Row="2"
+        <!-- Error message border -->
+        <Border Grid.Row="1"
                 BorderBrush="{DynamicResource SystemControlErrorTextForegroundBrush}"
                 BorderThickness="1"
                 CornerRadius="3"
