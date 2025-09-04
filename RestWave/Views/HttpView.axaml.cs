@@ -62,7 +62,6 @@ public partial class HttpView : UserControl
     {
         InitializeComponent();
         this.configManager = new ConfigManager();
-        this.config = configManager.LoadConfiguration();
     }
 
     public static HttpClient HttpClient { get; } = new();

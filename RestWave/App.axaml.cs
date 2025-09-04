@@ -18,7 +18,7 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        var config = this._configManager.LoadConfiguration();
+        var config = this._configManager.Current;
 
         // Apply saved theme
         this.RequestedThemeVariant = config.Theme switch

@@ -17,7 +17,6 @@ public partial class SettingsViewModel : ViewModelBase
 
     public SettingsViewModel()
     {
-        this._configManager.LoadConfiguration();
         this.RequestFilePath = this._configManager.Current.RequestsDirectoryPath!;
         this.Theme = this._configManager.Current.Theme;
     }

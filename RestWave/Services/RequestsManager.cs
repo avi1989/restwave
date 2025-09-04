@@ -15,8 +15,8 @@ public class RequestsManager
 
     public RequestsManager()
     {
-        ConfigManager configManager = new();
-        this.config = configManager.LoadConfiguration();
+        var configManager = new ConfigManager();
+        this.config = configManager.Current;
     }
 
     public ICollection<Node> GetCollections()

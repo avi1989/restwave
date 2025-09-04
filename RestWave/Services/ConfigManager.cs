@@ -9,7 +9,7 @@ namespace RestWave.Services;
 public class ConfigManager
 {
     private readonly string configPath;
-    private Config config = new();
+    private static Config config;
 
     public ConfigManager()
     {
@@ -19,10 +19,16 @@ public class ConfigManager
             : System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "restwave");
         this.configPath = System.IO.Path.Combine(configDir, "config");
+        ConfigManager.config = this.LoadConfiguration();
     }
 
-    public Config LoadConfiguration()
+    private Config LoadConfiguration()
     {
+        if (config != null)
+        {
+            return config;
+        }
+
         if (!System.IO.File.Exists(this.configPath))
         {
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(this.configPath)!);
@@ -36,25 +42,25 @@ public class ConfigManager
             {
                 try
                 {
-                    this.config = System.Text.Json.JsonSerializer.Deserialize<Config>(json) ?? new Config();
-                    return this.config;
+                    ConfigManager.config = System.Text.Json.JsonSerializer.Deserialize<Config>(json) ?? new Config();
+                    return ConfigManager.config;
                 }
                 catch
                 {
-                    this.config = new Config();
-                    return this.config;
+                    ConfigManager.config = new Config();
+                    return ConfigManager.config;
                 }
             }
         }
 
-        this.config = new Config();
-        return this.config;
+        ConfigManager.config = new Config();
+        return ConfigManager.config;
     }
 
     public void Write()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(this.configPath)!);
-        string json = System.Text.Json.JsonSerializer.Serialize(this.config, new System.Text.Json.JsonSerializerOptions
+        string json = System.Text.Json.JsonSerializer.Serialize(ConfigManager.config, new System.Text.Json.JsonSerializerOptions
         {
             WriteIndented = true
         });
@@ -63,28 +69,28 @@ public class ConfigManager
 
     public void SaveConfig(string path)
     {
-        this.config.RequestsDirectoryPath = path;
+        ConfigManager.config.RequestsDirectoryPath = path;
         Write();
     }
 
     public void SaveExpandedFolders(List<string> expandedFolders)
     {
         // store unique and sorted for stability
-        this.config.ExpandedFolders = expandedFolders.Distinct().OrderBy(x => x).ToList();
+        ConfigManager.config.ExpandedFolders = expandedFolders.Distinct().OrderBy(x => x).ToList();
         Write();
     }
 
     public void SaveLastOpenedFilePath(string? filePath)
     {
-        this.config.LastOpenedFilePath = filePath;
+        ConfigManager.config.LastOpenedFilePath = filePath;
         Write();
     }
 
     public void SaveTheme(string theme)
     {
-        this.config.Theme = theme;
+        ConfigManager.config.Theme = theme;
         Write();
     }
 
-    public Config Current => this.config;
+    public Config Current => ConfigManager.config;
 }

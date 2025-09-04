@@ -26,7 +26,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         this.configManager = new ConfigManager();
-        this.config = configManager.LoadConfiguration();
+        this.config = configManager.Current;
 
         this.Opened += async (_, __) =>
         {

@@ -19,7 +19,6 @@ namespace RestWave.Views
         {
             InitializeComponent();
             _configManager = new ConfigManager();
-            _configManager.LoadConfiguration();
 
             _viewModel = new SettingsViewModel();
             DataContext = _viewModel;

@@ -182,7 +182,7 @@ public partial class CollectionList : UserControl
 
     private void ApplyExpandedFoldersFromConfig()
     {
-        var cfg = _configManager.LoadConfiguration();
+        var cfg = _configManager.Current;
         var expanded = cfg.ExpandedFolders ?? new List<string>();
         foreach (var node in this.ViewModel.Collections.Where(n => n.IsFolder))
         {
@@ -452,7 +452,7 @@ public partial class CollectionList : UserControl
 
     private void ApplyLastOpenedFileFromConfig()
     {
-        var cfg = _configManager.LoadConfiguration();
+        var cfg = _configManager.Current;
         var lastPath = cfg.LastOpenedFilePath;
         if (string.IsNullOrWhiteSpace(lastPath))
             return;
