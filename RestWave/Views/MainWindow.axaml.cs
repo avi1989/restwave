@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using CommunityToolkit.Mvvm.Messaging;
 using RestWave.ViewModels.Responses;
 using RestWave.Models;
 using RestWave.Services;
@@ -100,5 +101,15 @@ public partial class MainWindow : Window
         {
             Debug.WriteLine($"Failed to open directory in explorer: {ex.Message}");
         }
+    }
+
+    private void OnExitClicked(object? sender, RoutedEventArgs e)
+    {
+        Close();
+    }
+
+    private void OnCloneClicked(object? sender, RoutedEventArgs e)
+    {
+        WeakReferenceMessenger.Default.Send(new AppViewModel.CloneRequestCommandMessage());
     }
 }

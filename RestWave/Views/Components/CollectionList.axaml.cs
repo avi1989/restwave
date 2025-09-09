@@ -34,6 +34,32 @@ public partial class CollectionList : UserControl
         this.Loaded += OnHttpViewLoaded;
 
         WeakReferenceMessenger.Default.Register<AppViewModel.CreateRequestCommandMessage>(this, OnCreateRequestCommand);
+        WeakReferenceMessenger.Default.Register<AppViewModel.CloneRequestCommandMessage>(this, OnCloneRequestCommand);
+    }
+
+    private void OnCloneRequestCommand(object recipient, AppViewModel.CloneRequestCommandMessage message)
+    {
+        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+        if (treeView == null)
+        {
+            Debug.WriteLine("Tree View Not Found");
+            return;
+        }
+
+        var node = treeView.SelectedItem as Node;
+
+        if (node == null || node.IsFolder || node.FilePath == null)
+        {
+            return;
+        }
+        
+        var filePath = node.FilePath;
+        var name = node.Title;
+        RequestsManager manager = new RequestsManager();
+        var currentRequest = manager.LoadRequest(filePath);
+        name = $"{name} (Copy)";
+        
+        WeakReferenceMessenger.Default.Send(new AppViewModel.CreateRequestCommandMessage(name, currentRequest));
     }
 
     private CollectionsViewModel ViewModel => (CollectionsViewModel)DataContext!;
@@ -71,6 +97,11 @@ public partial class CollectionList : UserControl
                     Url = "https://",
                     Method = "GET"
                 };
+                if (message.RequestBody != null)
+                {
+                    newRequest = message.RequestBody;
+                }
+
                 requestsManager.SaveRequestToFolder(newRequest, targetFolder.FilePath, message.RequestName);
                 RefreshAndWire(treeView);
                 targetFolder.IsExpanded = true;
@@ -745,5 +776,10 @@ public partial class CollectionList : UserControl
         }
 
         return null;
+    }
+
+    private void CloneRequest_OnClick(object? sender, RoutedEventArgs e)
+    {
+        WeakReferenceMessenger.Default.Send(new AppViewModel.CloneRequestCommandMessage());
     }
 }

@@ -37,11 +37,12 @@
                 <MenuItem Header="New" Command="{Binding CreateNewRequestCommand}"/>
                 <MenuItem Header="_Open in Explorer" Click="OnOpenInExplorer"/>
                 <Separator />
-                <MenuItem Header="_Exit" />
+                <MenuItem Header="_Exit" Click="OnExitClicked"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem Header="Copy" />
-                <MenuItem Header="Paste" />
+                <MenuItem Header="Clone" IsEnabled="True" Click="OnCloneClicked"/>
+                <MenuItem Header="Copy" IsEnabled="False"/>
+                <MenuItem Header="Paste" IsEnabled="False"/>
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem Header="_Settings..." Click="OnSettingsClick" />

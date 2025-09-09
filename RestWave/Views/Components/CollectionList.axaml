@@ -55,6 +55,11 @@
                                           Name="CreateNewRequestInFolderMenuItem"
                                           Click="CreateNewRequest_Click"
                                           DataContext="{Binding}" />
+                                <MenuItem Header="Clone Request"
+                                          Name="CloneRequest" 
+                                          DataContext="{Binding}"
+                                          Click="CloneRequest_OnClick"
+                                          IsVisible="{Binding !IsFolder}"/>
                                 <MenuItem Header="Create Collection"
                                           Name="CreateNewFolderMenuItem"
                                           Click="CreateNewFolder_Click"

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using RestWave.Services;
+using RestWave.ViewModels.Requests;
 
 namespace RestWave.ViewModels;
 
@@ -20,6 +21,8 @@ public partial class AppViewModel : ViewModelBase
     
     public record StartRenamingMessage(string CollectionName);
 
-    public record CreateRequestCommandMessage(string RequestName);
+    public record CreateRequestCommandMessage(string RequestName, RequestViewModel? RequestBody = null);
+    
+    public record CloneRequestCommandMessage();
 
 }
