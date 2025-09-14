@@ -23,15 +23,24 @@ namespace RestWave.Views.Components;
 
 public partial class CollectionList : UserControl
 {
+    private const string DefaultHttpMethod = "GET";
+    private const string DefaultUrl = "https://";
+    private const string CopySuffix = " (Copy)";
+    private const string RequestNameFormat = "Request {0:HHmmss}";
+    private const string CollectionNameFormat = "Collection {0:HHmmss}";
+    private const string NewFolderFormat = "New Folder {0:HHmmss}";
+    
     private Node? _draggedNode;
     private readonly ConfigManager _configManager = new();
     private readonly HashSet<Node> _subscribedFolderNodes = new();
+    private readonly RequestsManager _requestsManager = new();
+    private readonly TreeViewService _treeViewService = new();
+    private readonly DialogService _dialogService = new();
 
     public CollectionList()
     {
         InitializeComponent();
         this.KeyDown += OnKeyDown;
-        this.Loaded += OnHttpViewLoaded;
 
         WeakReferenceMessenger.Default.Register<AppViewModel.CreateRequestCommandMessage>(this, OnCreateRequestCommand);
         WeakReferenceMessenger.Default.Register<AppViewModel.CloneRequestCommandMessage>(this, OnCloneRequestCommand);
@@ -39,7 +48,7 @@ public partial class CollectionList : UserControl
 
     private void OnCloneRequestCommand(object recipient, AppViewModel.CloneRequestCommandMessage message)
     {
-        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+        var treeView = _treeViewService.GetTreeView(this);
         if (treeView == null)
         {
             Debug.WriteLine("Tree View Not Found");
@@ -57,12 +66,20 @@ public partial class CollectionList : UserControl
         var name = node.Title;
         RequestsManager manager = new RequestsManager();
         var currentRequest = manager.LoadRequest(filePath);
-        name = $"{name} (Copy)";
+        name = $"{name}{CopySuffix}";
         
         WeakReferenceMessenger.Default.Send(new AppViewModel.CreateRequestCommandMessage(name, currentRequest));
     }
 
     private CollectionsViewModel ViewModel => (CollectionsViewModel)DataContext!;
+
+    private Node? GetTargetFolder(Node node)
+    {
+        if (node.IsFolder)
+            return node;
+        
+        return node.Parent;
+    }
 
     protected override void OnUnloaded(RoutedEventArgs e)
     {
@@ -72,8 +89,7 @@ public partial class CollectionList : UserControl
 
     private void OnCreateRequestCommand(object recipient, AppViewModel.CreateRequestCommandMessage message)
     {
-        var requestsManager = new RequestsManager();
-        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+        var treeView = _treeViewService.GetTreeView(this);
         if (treeView == null)
         {
             Debug.WriteLine("Tree View Not Found");
@@ -83,35 +99,21 @@ public partial class CollectionList : UserControl
         var node = treeView.SelectedItem as Node;
         if (node != null)
         {
-            Node targetFolder = node;
-
-            if (!node.IsFolder && node.Parent != null)
+            var targetFolder = GetTargetFolder(node);
+            if (targetFolder?.IsFolder == true && targetFolder.FilePath != null)
             {
-                targetFolder = node.Parent;
-            }
-
-            if (targetFolder.IsFolder && targetFolder.FilePath != null)
-            {
-                var newRequest = new RequestViewModel
+                var newRequest = message.RequestBody ?? new RequestViewModel
                 {
-                    Url = "https://",
-                    Method = "GET"
+                    Url = DefaultUrl,
+                    Method = DefaultHttpMethod
                 };
-                if (message.RequestBody != null)
-                {
-                    newRequest = message.RequestBody;
-                }
 
-                requestsManager.SaveRequestToFolder(newRequest, targetFolder.FilePath, message.RequestName);
+                _requestsManager.SaveRequestToFolder(newRequest, targetFolder.FilePath, message.RequestName);
                 RefreshAndWire(treeView);
                 targetFolder.IsExpanded = true;
-                ExpandNodeInTreeView(targetFolder);
+                _treeViewService.ExpandNodeInTreeView(treeView, targetFolder);
                 var newRequestPath = Path.Combine(targetFolder.FilePath, $"{message.RequestName}.json");
-                var newRequestNode = FindNodeByPath(this.ViewModel.Collections.ToList(), newRequestPath);
-                if (newRequestNode != null)
-                {
-                    StartRenaming(newRequestNode);
-                }
+                FindNodeByPath(newRequestPath)?.Let(StartRenaming);
             }
         }
         else
@@ -123,8 +125,8 @@ public partial class CollectionList : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        RequestsManager requestsManager = new();
-        var collections = requestsManager.GetCollections();
+        SetupDragAndDrop();
+        var collections = _requestsManager.GetCollections();
         foreach (var collection in collections)
         {
             this.ViewModel.Collections.Add(collection);
@@ -136,11 +138,6 @@ public partial class CollectionList : UserControl
         PersistExpandedFolders();
         // Restore last opened file selection
         ApplyLastOpenedFileFromConfig();
-    }
-
-    private void OnHttpViewLoaded(object? sender, RoutedEventArgs e)
-    {
-        SetupDragAndDrop();
     }
 
     private void UnsubscribeFolderNodes()
@@ -202,7 +199,7 @@ public partial class CollectionList : UserControl
 
     private void SetupDragAndDrop()
     {
-        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+        var treeView = _treeViewService.GetTreeView(this);
         if (treeView != null)
         {
             DragDrop.SetAllowDrop(treeView, true);
@@ -243,21 +240,20 @@ public partial class CollectionList : UserControl
     {
         if (save && !string.IsNullOrWhiteSpace(node.EditingText))
         {
-            var requestsManager = new RequestsManager();
             bool success = false;
 
             if (node.IsFolder)
             {
-                success = requestsManager.RenameCollection(node.FilePath!, node.EditingText.Trim());
+                success = _requestsManager.RenameCollection(node.FilePath!, node.EditingText.Trim());
             }
             else
             {
-                success = requestsManager.RenameFile(node.FilePath!, node.EditingText.Trim());
+                success = _requestsManager.RenameFile(node.FilePath!, node.EditingText.Trim());
             }
 
             if (success)
             {
-                var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+                var treeView = _treeViewService.GetTreeView(this);
                 node.StopEditing(true);
                 RefreshAndWire(treeView);
             }
@@ -295,24 +291,10 @@ public partial class CollectionList : UserControl
         node.StartEditing();
 
         // Find the editing TextBox and focus it
-        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+        var treeView = _treeViewService.GetTreeView(this);
         if (treeView != null)
         {
-            // Use a short delay to ensure the UI has been updated
-            Dispatcher.UIThread.Post(() =>
-            {
-                // Find all visible TextBoxes with the right name
-                var allTextBoxes = treeView.FindDescendantsOfType<TextBox>();
-                foreach (var textBox in allTextBoxes)
-                {
-                    if (textBox.Name == "EditingTextBox" && textBox.IsVisible && textBox.DataContext == node)
-                    {
-                        textBox.Focus();
-                        textBox.SelectAll();
-                        break;
-                    }
-                }
-            }, DispatcherPriority.Background);
+            _treeViewService.FocusEditingTextBox(treeView, node);
         }
     }
 
@@ -374,7 +356,7 @@ public partial class CollectionList : UserControl
 
     private void TreeView_Drop(object? sender, DragEventArgs e)
     {
-        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+        var treeView = _treeViewService.GetTreeView(this);
         if (e.Data.Contains("Node") && sender is Visual visual && visual is IInputElement inputElement)
         {
             var draggedNode = e.Data.Get("Node") as Node;
@@ -389,18 +371,17 @@ public partial class CollectionList : UserControl
                     return;
                 }
 
-                var requestsManager = new RequestsManager();
                 bool success = false;
 
                 if (draggedNode.IsFolder)
                 {
                     // Move folder to target folder
-                    success = requestsManager.MoveFolder(draggedNode.FilePath!, targetNode.FilePath!);
+                    success = _requestsManager.MoveFolder(draggedNode.FilePath!, targetNode.FilePath!);
                 }
                 else
                 {
                     // Move file to target folder
-                    success = requestsManager.MoveFileToFolder(draggedNode.FilePath!, targetNode.FilePath!);
+                    success = _requestsManager.MoveFileToFolder(draggedNode.FilePath!, targetNode.FilePath!);
                 }
 
                 if (success)
@@ -486,27 +467,16 @@ public partial class CollectionList : UserControl
     // Context Menu Event Handlers
     private void CreateNewRequest_Click(object? sender, RoutedEventArgs e)
     {
-        var requestName = $"Request {DateTime.Now:HHmmss}";
+        var requestName = string.Format(RequestNameFormat, DateTime.Now);
         WeakReferenceMessenger.Default.Send(new AppViewModel.CreateRequestCommandMessage(requestName));
     }
 
     private void ExpandNodeInTreeView(Node node)
     {
-        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+        var treeView = _treeViewService.GetTreeView(this);
         if (treeView != null)
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                var treeViewItems = treeView.FindDescendantsOfType<TreeViewItem>();
-                foreach (var item in treeViewItems)
-                {
-                    if ((item.DataContext as Node)?.FilePath == node.FilePath)
-                    {
-                        item.IsExpanded = true;
-                        break;
-                    }
-                }
-            }, DispatcherPriority.Background);
+            _treeViewService.ExpandNodeInTreeView(treeView, node);
         }
     }
 
@@ -556,8 +526,7 @@ public partial class CollectionList : UserControl
         if (node.FilePath != null)
         {
             // Load and display the request
-            var requestsManager = new RequestsManager();
-            var request = requestsManager.LoadRequest(node.FilePath);
+            var request = _requestsManager.LoadRequest(node.FilePath);
 
             // You'll need to implement this method to set the current request in your main view
             // This might involve navigating to the request view or updating the current request context
@@ -568,7 +537,7 @@ public partial class CollectionList : UserControl
     private async Task DeleteNode(Node node)
     {
         // Show confirmation dialog
-        var result = await ShowConfirmationDialog($"Are you sure you want to delete '{node.Title}'?");
+        var result = await _dialogService.ShowConfirmationDialogAsync(this, $"Are you sure you want to delete '{node.Title}'?", "Confirm Delete");
 
         if (result)
         {
@@ -596,7 +565,7 @@ public partial class CollectionList : UserControl
 
             if (success)
             {
-                var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+                var treeView = _treeViewService.GetTreeView(this);
                 this.ViewModel.RefreshCollections(treeView);
             }
         }
@@ -620,72 +589,12 @@ public partial class CollectionList : UserControl
         }
     }
 
-    private async Task<bool> ShowConfirmationDialog(string message)
-    {
-        // Simple confirmation dialog implementation
-        // You might want to use a more sophisticated dialog system
-        var window = TopLevel.GetTopLevel(this) as Window;
-        if (window != null)
-        {
-            var yesButton = new Button { Content = "Yes", Margin = new Thickness(0, 0, 10, 0) };
-            var noButton = new Button { Content = "No" };
-            var dialog = new Window
-            {
-                Title = "Confirm Delete",
-                Width = 400,
-                Height = 150,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Content = new DockPanel
-                {
-                    Margin = new Thickness(20),
-                    Children =
-                    {
-                        new TextBlock
-                        {
-                            Text = message, Margin = new Thickness(0, 0, 0, 20), TextWrapping = TextWrapping.Wrap,
-                            [DockPanel.DockProperty] = Dock.Top
-                        },
-                        new StackPanel
-                        {
-                            Orientation = Avalonia.Layout.Orientation.Horizontal,
-                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
-                            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Bottom,
-                            [DockPanel.DockProperty] = Dock.Bottom,
-                            Children =
-                            {
-                                yesButton,
-                                noButton,
-                            }
-                        }
-                    }
-                }
-            };
-
-            bool result = false;
-            yesButton.Click += (s, e) =>
-            {
-                result = true;
-                dialog.Close();
-            };
-            noButton.Click += (s, e) =>
-            {
-                result = false;
-                dialog.Close();
-            };
-
-            await dialog.ShowDialog(window);
-            return result;
-        }
-
-        return false;
-    }
 
     private void CreateNewCollection_Click(object? sender, RoutedEventArgs e)
     {
-        var collectionName = $"Collection {DateTime.Now:HHmmss}";
-        var requestsManager = new RequestsManager();
-        requestsManager.CreateCollection(collectionName);
-        var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+        var collectionName = string.Format(CollectionNameFormat, DateTime.Now);
+        _requestsManager.CreateCollection(collectionName);
+        var treeView = _treeViewService.GetTreeView(this);
         this.ViewModel.RefreshCollections(treeView);
         var node = this.ViewModel.Collections.First(n => n.Title == collectionName && n.IsFolder);
 
@@ -699,26 +608,25 @@ public partial class CollectionList : UserControl
 
         if (parentNode != null && parentNode.IsFolder && parentNode.FilePath != null)
         {
-            var folderName = $"New Folder {DateTime.Now:HHmmss}";
-            var requestsManager = new RequestsManager();
+            var folderName = string.Format(NewFolderFormat, DateTime.Now);
 
             try
             {
                 System.Diagnostics.Debug.WriteLine($"Creating folder '{folderName}' in '{parentNode.FilePath}'");
-                requestsManager.CreateNestedFolder(parentNode.FilePath, folderName);
+                _requestsManager.CreateNestedFolder(parentNode.FilePath, folderName);
 
-                var treeView = this.FindControl<TreeView>("CollectionsTreeView");
+                var treeView = _treeViewService.GetTreeView(this);
                 RefreshAndWire(treeView);
 
                 // Find and rename the newly created folder
                 var newFolderPath = Path.Combine(parentNode.FilePath, folderName);
                 System.Diagnostics.Debug.WriteLine($"Looking for new folder at: {newFolderPath}");
 
-                var newNode = FindNodeByPath(this.ViewModel.Collections.ToList(), newFolderPath);
-                if (newNode != null)
+                var newNode = FindNodeByPath(newFolderPath);
+                if (newNode != null && treeView != null)
                 {
                     parentNode.IsExpanded = true;
-                    ExpandNodeInTreeView(parentNode);
+                    _treeViewService.ExpandNodeInTreeView(treeView, parentNode);
                     StartRenaming(newNode);
                     System.Diagnostics.Debug.WriteLine("Found and starting rename of new folder");
                 }
@@ -739,28 +647,12 @@ public partial class CollectionList : UserControl
         }
     }
 
-    private Node? FindNodeByPath(Node parentNode, string targetPath)
+    private Node? FindNodeByPath(string targetPath)
     {
-        if (parentNode.SubNodes == null)
-            return null;
-
-        foreach (var child in parentNode.SubNodes)
-        {
-            if (string.Equals(child.FilePath, targetPath, StringComparison.OrdinalIgnoreCase))
-                return child;
-
-            if (child.IsFolder && child.SubNodes != null)
-            {
-                var found = FindNodeByPath(child, targetPath);
-                if (found != null)
-                    return found;
-            }
-        }
-
-        return null;
+        return FindNodeByPathRecursive(this.ViewModel.Collections, targetPath);
     }
 
-    private Node? FindNodeByPath(IList<Node> nodes, string targetPath)
+    private static Node? FindNodeByPathRecursive(IEnumerable<Node> nodes, string targetPath)
     {
         foreach (var node in nodes)
         {
@@ -769,7 +661,7 @@ public partial class CollectionList : UserControl
 
             if (node.IsFolder && node.SubNodes != null)
             {
-                var found = FindNodeByPath(node, targetPath);
+                var found = FindNodeByPathRecursive(node.SubNodes, targetPath);
                 if (found != null)
                     return found;
             }
