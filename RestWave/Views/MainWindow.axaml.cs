@@ -112,4 +112,10 @@ public partial class MainWindow : Window
     {
         WeakReferenceMessenger.Default.Send(new AppViewModel.CloneRequestCommandMessage());
     }
+
+    private async void OnAboutClick(object? sender, RoutedEventArgs e)
+    {
+        var aboutWindow = new AboutWindow();
+        await aboutWindow.ShowDialog(this);
+    }
 }

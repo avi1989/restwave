@@ -1,0 +1,78 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="RestWave.Views.AboutWindow"
+        Title="About RestWave"
+        Width="450"
+        Height="500"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Icon="/Assets/logo.ico">
+    
+    <Window.Styles>
+        <StyleInclude Source="/Styles/AppTheme.axaml" />
+    </Window.Styles>
+    
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Styles/ThemeColors.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Classes="Card" Margin="0">
+        <StackPanel Spacing="15" HorizontalAlignment="Center">
+            <!-- App Icon -->
+            <Image Source="/Assets/logo.ico" Width="64" Height="64" />
+            
+            <!-- App Name and Version -->
+            <StackPanel Spacing="5" HorizontalAlignment="Center">
+                <TextBlock Text="RestWave" FontSize="28" FontWeight="Bold"
+                           Foreground="{DynamicResource TextPrimary}" 
+                           HorizontalAlignment="Center" />
+                <TextBlock x:Name="VersionText" Text="" FontSize="14"
+                           Foreground="{DynamicResource TextSecondary}" 
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+            
+            <!-- Description -->
+            <TextBlock Text="A modern, cross-platform REST API client built with Avalonia UI and .NET 9"
+                       FontSize="14" Foreground="{DynamicResource TextSecondary}"
+                       TextWrapping="Wrap" TextAlignment="Center"
+                       MaxWidth="400" />
+            
+            <!-- Copyright -->
+            <TextBlock x:Name="CopyrightText" FontSize="12"
+                       Foreground="{DynamicResource TextSecondary}"
+                       HorizontalAlignment="Center" />
+            
+            <!-- System Information -->
+            <Border Classes="Card" Background="{DynamicResource BackgroundSecondary}" Padding="12">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="System Information" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimary}" FontSize="13" />
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="3">
+                        <TextBlock Text="OS:" Grid.Row="0" Grid.Column="0" FontSize="12" 
+                                   Foreground="{DynamicResource TextSecondary}" />
+                        <TextBlock x:Name="OSText" Grid.Row="0" Grid.Column="1" FontSize="12"
+                                   Foreground="{DynamicResource TextPrimary}" />
+                        
+                        <TextBlock Text="Runtime:" Grid.Row="1" Grid.Column="0" FontSize="12"
+                                   Foreground="{DynamicResource TextSecondary}" />
+                        <TextBlock x:Name="RuntimeText" Grid.Row="1" Grid.Column="1" FontSize="12"
+                                   Foreground="{DynamicResource TextPrimary}" />
+                        
+                        <TextBlock Text="Architecture:" Grid.Row="2" Grid.Column="0" FontSize="12"
+                                   Foreground="{DynamicResource TextSecondary}" />
+                        <TextBlock x:Name="ArchitectureText" Grid.Row="2" Grid.Column="1" FontSize="12"
+                                   Foreground="{DynamicResource TextPrimary}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+            
+            <!-- Close Button -->
+            <Button Content="Close" Classes="Primary" Click="OnCloseClick" 
+                    MinWidth="100" HorizontalAlignment="Center" Margin="0,10,0,0" />
+        </StackPanel>
+    </Border>
+</Window>

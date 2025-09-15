@@ -47,6 +47,9 @@
             <MenuItem Header="_Tools">
                 <MenuItem Header="_Settings..." Click="OnSettingsClick" />
             </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About..." Click="OnAboutClick" />
+            </MenuItem>
         </Menu>
         <views:HttpView DataContext="{Binding HttpViewModel}" />
     </DockPanel>
