@@ -113,6 +113,17 @@ public partial class MainWindow : Window
         WeakReferenceMessenger.Default.Send(new AppViewModel.CloneRequestCommandMessage());
     }
 
+    private async void OnHistoryClick(object? sender, RoutedEventArgs e)
+    {
+        var historyWindow = new HistoryWindow();
+        historyWindow.RequestReplay += (s, request) =>
+        {
+            // Load the replayed request into the main HTTP view
+            ViewModel.HttpViewModel.Request = request;
+        };
+        await historyWindow.ShowDialog(this);
+    }
+
     private async void OnAboutClick(object? sender, RoutedEventArgs e)
     {
         var aboutWindow = new AboutWindow();

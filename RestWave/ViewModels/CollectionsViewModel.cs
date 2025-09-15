@@ -86,4 +86,43 @@ public partial class CollectionsViewModel : ViewModelBase
         // Create a unique path for the node based on its hierarchy
         return node.GetFullPath();
     }
+
+    public void SelectRequestByName(string collectionName, string requestName)
+    {
+        // Find the request node by collection and request name
+        var collectionNode = Collections.FirstOrDefault(c => c.Title == collectionName && c.IsFolder);
+        if (collectionNode != null)
+        {
+            var requestNode = FindRequestInNode(collectionNode, requestName);
+            if (requestNode != null)
+            {
+                SelectedNode = requestNode;
+            }
+        }
+    }
+
+    private Node? FindRequestInNode(Node parentNode, string requestName)
+    {
+        // Check direct children first
+        var directMatch = parentNode.SubNodes?.FirstOrDefault(c => !c.IsFolder && c.Title == requestName);
+        if (directMatch != null)
+        {
+            return directMatch;
+        }
+
+        // Recursively search in subfolders
+        if (parentNode.SubNodes != null)
+        {
+            foreach (var child in parentNode.SubNodes.Where(c => c.IsFolder))
+            {
+                var result = FindRequestInNode(child, requestName);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+        }
+
+        return null;
+    }
 }

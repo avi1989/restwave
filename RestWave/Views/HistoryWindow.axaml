@@ -1,0 +1,187 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:RestWave.ViewModels"
+        xmlns:models="using:RestWave.Models"
+        xmlns:views="using:RestWave.Views"
+        x:Class="RestWave.Views.HistoryWindow"
+        x:DataType="vm:HistoryViewModel"
+        Title="Request History"
+        Width="1000"
+        Height="700"
+        MinWidth="800"
+        MinHeight="500"
+        Icon="/Assets/logo.ico">
+
+    <Design.DataContext>
+        <vm:HistoryViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header with search and filters -->
+        <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" Padding="16">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
+                <!-- Search box -->
+                <TextBox Grid.Column="0" 
+                         Text="{Binding SearchText}" 
+                         Watermark="Search by URL..."
+                         Margin="0,0,8,0">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter" Command="{Binding SearchCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+
+                <!-- Method filter -->
+                <ComboBox Grid.Column="1" 
+                          ItemsSource="{Binding MethodFilters}"
+                          SelectedItem="{Binding SelectedMethodFilter}"
+                          Width="100"
+                          Margin="4,0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <!-- Status filter -->
+                <ComboBox Grid.Column="2" 
+                          ItemsSource="{Binding StatusFilters}"
+                          SelectedItem="{Binding SelectedStatusFilter}"
+                          Width="100"
+                          Margin="4,0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <!-- Refresh button -->
+                <Button Grid.Column="3" 
+                        Command="{Binding RefreshCommand}"
+                        Content="🔄"
+                        ToolTip.Tip="Refresh"
+                        Margin="4,0" />
+
+                <!-- Clear all button -->
+                <Button Grid.Column="4" 
+                        Command="{Binding ClearAllHistoryCommand}"
+                        Content="🗑️"
+                        ToolTip.Tip="Clear All History"
+                        Margin="4,0" />
+            </Grid>
+        </Border>
+
+        <!-- History list -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding HistoryItems}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:RequestHistoryItem">
+                        <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                                BorderThickness="0,0,0,1"
+                                Padding="16,12">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto">
+                                <!-- HTTP Method -->
+                                <Border Grid.Column="0" 
+                                        Background="{Binding Method, Converter={x:Static views:MethodColorConverter.Instance}}"
+                                        CornerRadius="4"
+                                        Padding="8,4"
+                                        Margin="0,0,12,0">
+                                    <TextBlock Text="{Binding Method}" 
+                                               Foreground="White"
+                                               FontWeight="Bold"
+                                               FontSize="12" />
+                                </Border>
+
+                                <!-- URL and details -->
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <TextBlock Text="{Binding Url}" 
+                                               FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <TextBlock Text="{Binding Timestamp, Converter={x:Static views:TimestampConverter.Instance}}"
+                                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                                   FontSize="12" />
+                                        <TextBlock Text="{Binding CollectionName}"
+                                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                                   FontSize="12"
+                                                   IsVisible="{Binding CollectionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                                        <TextBlock Text="{Binding RequestName}"
+                                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                                   FontSize="12"
+                                                   IsVisible="{Binding RequestName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Status Code -->
+                                <Border Grid.Column="2" 
+                                        Background="{Binding StatusCode, Converter={x:Static views:StatusCodeColorConverter.Instance}}"
+                                        CornerRadius="4"
+                                        Padding="6,4"
+                                        Margin="8,0">
+                                    <TextBlock Text="{Binding StatusCode}" 
+                                               Foreground="White"
+                                               FontWeight="Bold"
+                                               FontSize="12" />
+                                </Border>
+
+                                <!-- Response Time -->
+                                <TextBlock Grid.Column="3" 
+                                           Text="{Binding ResponseTime, Converter={x:Static views:ResponseTimeConverter.Instance}}"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           FontSize="12"
+                                           Margin="8,0" />
+
+                                <!-- Response Size -->
+                                <TextBlock Grid.Column="4" 
+                                           Text="{Binding ResponseSize, Converter={x:Static views:ResponseSizeConverter.Instance}}"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           FontSize="12"
+                                           Margin="8,0" />
+
+                                <!-- Actions -->
+                                <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="4">
+                                    <Button Content="▶️" 
+                                            ToolTip.Tip="Replay Request"
+                                            Click="ReplayButton_Click"
+                                            Tag="{Binding}"
+                                            Classes="icon-button" />
+                                    <Button Content="🗑️" 
+                                            ToolTip.Tip="Delete"
+                                            Command="{Binding $parent[Window].((vm:HistoryViewModel)DataContext).DeleteHistoryItemCommand}"
+                                            CommandParameter="{Binding}"
+                                            Classes="icon-button" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Footer with load more -->
+        <Border Grid.Row="2" 
+                Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" 
+                Padding="16"
+                IsVisible="{Binding HasMoreItems}">
+            <Button Content="Load More" 
+                    Command="{Binding LoadMoreCommand}"
+                    HorizontalAlignment="Center"
+                    IsEnabled="{Binding !IsLoading}" />
+        </Border>
+    </Grid>
+
+    <Window.Styles>
+        <Style Selector="Button.icon-button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Margin" Value="2" />
+        </Style>
+        
+        <Style Selector="Button.icon-button:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundListMediumBrush}" />
+        </Style>
+    </Window.Styles>
+</Window>
