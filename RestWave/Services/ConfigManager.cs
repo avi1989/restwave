@@ -9,7 +9,7 @@ namespace RestWave.Services;
 public class ConfigManager
 {
     private readonly string configPath;
-    private static Config config;
+    private static Config config = new Config();
 
     public ConfigManager()
     {

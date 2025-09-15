@@ -56,7 +56,6 @@ public static class VisualTreeExtensions
 public partial class HttpView : UserControl
 {
     private readonly ConfigManager configManager;
-    private Config config;
 
     public HttpView()
     {
