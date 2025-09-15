@@ -9,7 +9,8 @@ namespace RestWave.Services;
 public class ConfigManager
 {
     private readonly string configPath;
-    private static Config config;
+    private static Config config = new Config();
+    private static bool isConfigLoaded = false;
 
     public ConfigManager()
     {
@@ -24,7 +25,7 @@ public class ConfigManager
 
     private Config LoadConfiguration()
     {
-        if (config != null)
+        if (ConfigManager.isConfigLoaded)
         {
             return config;
         }
@@ -43,6 +44,7 @@ public class ConfigManager
                 try
                 {
                     ConfigManager.config = System.Text.Json.JsonSerializer.Deserialize<Config>(json) ?? new Config();
+                    ConfigManager.isConfigLoaded = true;
                     return ConfigManager.config;
                 }
                 catch
@@ -54,6 +56,7 @@ public class ConfigManager
         }
 
         ConfigManager.config = new Config();
+        ConfigManager.isConfigLoaded = true;
         return ConfigManager.config;
     }
 

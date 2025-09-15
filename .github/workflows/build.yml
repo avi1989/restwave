@@ -34,5 +34,5 @@ jobs:
           --self-contained true \
           /p:PublishSingleFile=true \
           /p:IncludeNativeLibrariesForSelfExtract=true \
+          /p:TreatWarningsAsErrors=true \
           --no-restore
-
