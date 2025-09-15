@@ -16,10 +16,24 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-      - name: Generate Changelog
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-git-cliff
+          restore-keys: |
+            ${{ runner.os }}-cargo-git-cliff
+      - name: Install git-cliff
         run: |
-          cargo install git-cliff
-          git cliff --latest -o ${{ github.workspace }}-CHANGELOG.txt
+          if ! command -v git-cliff &> /dev/null; then
+            cargo install git-cliff
+          fi
+      - name: Generate Changelog
+        run: git cliff --latest -o ${{ github.workspace }}-CHANGELOG.txt
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -53,6 +67,16 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
+        cache: true
+        cache-dependency-path: RestWave/RestWave.csproj
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/RestWave.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
 
     - name: Restore dependencies
       run: dotnet restore RestWave/RestWave.csproj
