@@ -34,7 +34,7 @@ jobs:
         include:
           - os: windows-latest
             runtime: win-x64
-            artifact-name: RestWave-windows-x64.exe
+            artifact-name: RestWave-windows-x64
           - os: ubuntu-latest
             runtime: linux-x64
             artifact-name: RestWave-linux-x64
@@ -58,7 +58,7 @@ jobs:
       run: dotnet restore RestWave/RestWave.csproj
 
     - name: Build and publish
-      run: dotnet publish RestWave/RestWave.csproj -c Release -r ${{ matrix.runtime }} --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishReadyToRun=true /p:Version=${{ github.ref_name }} /p:AssemblyVersion=${{ github.ref_name }}.0 /p:FileVersion=${{ github.ref_name }}.0 -o ./publish/${{ matrix.artifact-name }}
+      run: dotnet publish RestWave/RestWave.csproj -c Release -r ${{ matrix.runtime }} --self-contained false /p:PublishReadyToRun=true /p:Version=${{ github.ref_name }} /p:AssemblyVersion=${{ github.ref_name }}.0 /p:FileVersion=${{ github.ref_name }}.0 -o ./publish/${{ matrix.artifact-name }}
 
     - name: Zip published files (Windows)
       if: runner.os == 'Windows'
@@ -79,7 +79,24 @@ jobs:
         zip -r ../${{ matrix.artifact-name }}.zip . -x '*.pdb'
         cd -
     
+    - name: Build Windows Installer
+      if: matrix.os == 'windows-latest'
+      run: |
+        # Download and install Inno Setup
+        Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "inno-setup-installer.exe"
+        Start-Process -FilePath "inno-setup-installer.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/DIR=C:\InnoSetup" -Wait
+
+        # Set version environment variable
+        $env:APP_VERSION = "${{ github.ref_name }}"
+
+        # Build installer
+        & "C:\InnoSetup\ISCC.exe" setup.iss
+
+        # Move installer to publish folder
+        Move-Item "installer\RestWave-Setup-${{ github.ref_name }}.exe" "./publish/"
+
     - name: Create Artifact
       uses: softprops/action-gh-release@v2
       with:
-        files: ./publish/${{ matrix.artifact-name }}.zip
+        files: |
+          ${{ runner.os == 'Windows' && './publish/RestWave-Setup-' || './publish/' }}${{ runner.os == 'Windows' && github.ref_name || matrix.artifact-name }}${{ runner.os == 'Windows' && '.exe' || '.zip' }}
