@@ -1,0 +1,85 @@
+name: Release
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+     runs-on: ubuntu-latest
+     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install latest rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+      - name: Generate Changelog
+        run: |
+          cargo install git-cliff
+          git cliff --latest -o ${{ github.workspace }}-CHANGELOG.txt
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          token: ${{ secrets.GITHUB_TOKEN }}
+  build:
+    name: Build ${{ matrix.os }}
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            runtime: win-x64
+            artifact-name: RestWave-windows-x64.exe
+          - os: ubuntu-latest
+            runtime: linux-x64
+            artifact-name: RestWave-linux-x64
+          - os: macos-latest
+            runtime: osx-x64
+            artifact-name: RestWave-macos-x64
+          - os: macos-latest
+            runtime: osx-arm64
+            artifact-name: RestWave-macos-arm64
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore RestWave/RestWave.csproj
+
+    - name: Build and publish
+      run: dotnet publish RestWave/RestWave.csproj -c Release -r ${{ matrix.runtime }} --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishReadyToRun=true /p:Version=${{ github.ref_name }} /p:AssemblyVersion=${{ github.ref_name }}.0 /p:FileVersion=${{ github.ref_name }}.0 -o ./publish/${{ matrix.artifact-name }}
+
+    - name: Zip published files (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        $source = "./publish/${{ matrix.artifact-name }}/*"
+        $destination = "./publish/${{ matrix.artifact-name }}.zip"
+        $exclude = Get-ChildItem -Path "./publish/${{ matrix.artifact-name }}" -Recurse -Include *.pdb | ForEach-Object { $_.FullName }
+        if ($exclude) {
+          Compress-Archive -Path (Get-ChildItem -Path "./publish/${{ matrix.artifact-name }}" -Recurse | Where-Object { $_.Extension -ne ".pdb" } | Select-Object -ExpandProperty FullName) -DestinationPath $destination
+        } else {
+          Compress-Archive -Path $source -DestinationPath $destination
+        }
+
+    - name: Zip published files (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: |
+        cd ./publish/${{ matrix.artifact-name }}
+        zip -r ../${{ matrix.artifact-name }}.zip . -x '*.pdb'
+        cd -
+    
+    - name: Create Artifact
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./publish/${{ matrix.artifact-name }}.zip

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -8,6 +8,11 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
+        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
+        <Product>RestWave</Product>
+        <Company>RestWave</Company>
+        <Description>A modern, cross-platform REST API client built with Avalonia UI and .NET 9</Description>
+        <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Cross-platform build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runtime: [win-x64, linux-x64, osx-x64, osx-arm64]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore RestWave/RestWave.csproj
+
+    - name: Build for ${{ matrix.runtime }}
+      run: |
+        dotnet publish RestWave/RestWave.csproj \
+          -c Release \
+          -r ${{ matrix.runtime }} \
+          --self-contained true \
+          /p:PublishSingleFile=true \
+          /p:IncludeNativeLibrariesForSelfExtract=true \
+          --no-restore
+
