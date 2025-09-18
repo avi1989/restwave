@@ -69,6 +69,7 @@ public partial class HttpView : UserControl
     private HttpViewModel ViewModel => (HttpViewModel)DataContext!;
 
     private readonly RequestHistoryService requestHistoryService = new RequestHistoryService();
+    private PropertyChangedEventHandler? _requestPropertyChangedHandler;
 
     private async void BtnInvoke_OnClick(object? sender, RoutedEventArgs e)
     {
@@ -209,6 +210,8 @@ public partial class HttpView : UserControl
         // In case the selection was set before this handler was attached (e.g., restored from config),
         // load the request now.
         OnSelectedNodeChanged();
+
+        SubscribeToRequestChanges();
     }
 
     private async void BtnSave_OnClick(object? sender, RoutedEventArgs e)
@@ -294,6 +297,8 @@ public partial class HttpView : UserControl
             if (loadedRequest != null)
             {
                 this.ViewModel.Request = loadedRequest;
+                // Re-subscribe to request changes when replacing Request instance
+                SubscribeToRequestChanges();
             }
 
             // Load history related to this request
@@ -318,5 +323,36 @@ public partial class HttpView : UserControl
         if (topLevel == null) return;
         var window = new HistoryWindow();
         await window.ShowDialog(topLevel);
+    }
+
+    private void SubscribeToRequestChanges()
+    {
+        // Unsubscribe previous
+        if (_requestPropertyChangedHandler != null)
+        {
+            // We cannot reliably remove if instance changed; try-catch to ignore
+            try
+            {
+                this.ViewModel.Request.PropertyChanged -= _requestPropertyChangedHandler;
+            }
+            catch { }
+        }
+
+        _requestPropertyChangedHandler = (s, e) =>
+        {
+            if (e.PropertyName == nameof(RequestViewModel.Method) || e.PropertyName == nameof(RequestViewModel.Url))
+            {
+                var selectedNode = this.ViewModel.Collections.SelectedNode;
+                // Only auto-update for ad-hoc requests (no concrete file selected)
+                if (selectedNode == null || selectedNode.IsFolder || string.IsNullOrEmpty(selectedNode.FilePath))
+                {
+                    var key = BuildHistoryKey(selectedNode, this.ViewModel.Request);
+                    var related = requestHistoryService.GetByKey(key);
+                    this.ViewModel.SetCurrentHistoryEntries(related);
+                }
+            }
+        };
+
+        this.ViewModel.Request.PropertyChanged += _requestPropertyChangedHandler;
     }
 }
