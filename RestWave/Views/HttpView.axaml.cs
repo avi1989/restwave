@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -18,6 +18,7 @@ using Avalonia.VisualTree;
 using RestWave.Models;
 using RestWave.Services;
 using RestWave.ViewModels;
+using RestWave.ViewModels.Requests;
 
 namespace RestWave.Views;
 
@@ -67,6 +68,8 @@ public partial class HttpView : UserControl
 
     private HttpViewModel ViewModel => (HttpViewModel)DataContext!;
 
+    private readonly RequestHistoryService requestHistoryService = new RequestHistoryService();
+
     private async void BtnInvoke_OnClick(object? sender, RoutedEventArgs e)
     {
         var viewModel = this.ViewModel;
@@ -83,6 +86,7 @@ public partial class HttpView : UserControl
         viewModel.Response.Headers.Clear();
         viewModel.Response.StartOperation(); // This creates the cancellation token and sets IsLoading = true
 
+        var start = DateTime.UtcNow;
         try
         {
             var request = new HttpRequestMessage(new HttpMethod(viewModel.Request.Method),
@@ -159,6 +163,36 @@ public partial class HttpView : UserControl
         finally
         {
             viewModel.Response.CompleteOperation(); // This sets IsLoading = false and cleans up
+            // Record History
+            try
+            {
+                var end = DateTime.UtcNow;
+                var duration = (long)(end - start).TotalMilliseconds;
+                var entry = new RequestHistoryEntry
+                {
+                    Timestamp = DateTime.UtcNow,
+                    Key = BuildHistoryKey(this.ViewModel.Collections.SelectedNode, this.ViewModel.Request),
+                    Method = this.ViewModel.Request.Method,
+                    Url = this.ViewModel.Request.Url,
+                    RequestHeaders = this.ViewModel.Request.HeadersInput.Headers
+                        .Select(h => new KeyValuePair<string, string>(h.Key, h.Value)).ToList(),
+                    RequestBody = this.ViewModel.Request.IsBodyEnabled ? this.ViewModel.Request.JsonBodyInput.JsonText : string.Empty,
+                    StatusCode = this.ViewModel.Response.StatusCode,
+                    ResponseHeaders = this.ViewModel.Response.Headers.ToList(),
+                    ResponseBody = this.ViewModel.Response.Body,
+                    DurationMs = duration
+                };
+                requestHistoryService.Add(entry);
+
+                // refresh sidebar history for current key
+                var key = entry.Key;
+                var related = requestHistoryService.GetByKey(key);
+                this.ViewModel.SetCurrentHistoryEntries(related);
+            }
+            catch (Exception historyEx)
+            {
+                Debug.WriteLine($"Failed to record history: {historyEx.Message}");
+            }
         }
     }
 
@@ -261,6 +295,28 @@ public partial class HttpView : UserControl
             {
                 this.ViewModel.Request = loadedRequest;
             }
+
+            // Load history related to this request
+            var key = BuildHistoryKey(selectedNode, this.ViewModel.Request);
+            var related = requestHistoryService.GetByKey(key);
+            this.ViewModel.SetCurrentHistoryEntries(related);
         }
+    }
+
+    private static string BuildHistoryKey(Node? selectedNode, RequestViewModel request)
+    {
+        if (selectedNode != null && !string.IsNullOrEmpty(selectedNode.FilePath) && !selectedNode.IsFolder)
+        {
+            return $"file:{selectedNode.FilePath}";
+        }
+        return $"adHoc:{request.Method}:{request.Url}";
+    }
+
+    private async void BtnHistory_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this) as Window;
+        if (topLevel == null) return;
+        var window = new HistoryWindow();
+        await window.ShowDialog(topLevel);
     }
 }
