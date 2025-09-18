@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -45,6 +45,11 @@
                                       VerticalAlignment="Center" Margin="0,0,12,0"
                                       SelectionBoxItem="{Binding Request.Method}" ItemsSource="{Binding Methods}" />
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                                <Button Name="BtnHistory" Classes="Icon" Margin="0,0,8,0"
+                                        Click="BtnHistory_OnClick" ToolTip.Tip="Open History">
+                                    <TextBlock Text="🕘" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               FontSize="14" />
+                                </Button>
                                 <Button Name="BtnSave" Classes="Icon" Margin="0,0,8,0"
                                         Click="BtnSave_OnClick" ToolTip.Tip="Save Request" HotKey="Ctrl+S">
                                     <TextBlock Text="💾" VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -71,6 +76,8 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="300" />
                         </Grid.ColumnDefinitions>
 
                         <Border Classes="Card" Grid.Column="0" Margin="0,0,8,0">
@@ -85,6 +92,30 @@
     
                         <Border Classes="Card" Grid.Column="2" Margin="8,0,0,0">
                             <response:ResponseView VerticalAlignment="Stretch" DataContext="{Binding Response}" />
+                        </Border>
+
+                        <GridSplitter Grid.Column="3"
+                                      Width="5"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Stretch"
+                                      Background="{DynamicResource BorderLight}" />
+
+                        <Border Classes="Card" Grid.Column="4" Margin="8,0,0,0">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Classes="SectionHeader" Text="History" Margin="0,0,0,6" />
+                                <ListBox ItemsSource="{Binding CurrentRequestHistory}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Method}" FontWeight="Bold" />
+                                                <TextBlock Text="{Binding Url}" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding StatusCode}" />
+                                                <TextBlock Text="{Binding Timestamp}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
                         </Border>
                     </Grid>
                 </DockPanel>

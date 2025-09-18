@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using RestWave.Models;
 using RestWave.ViewModels.Requests;
@@ -14,6 +14,7 @@ public partial class HttpViewModel : ViewModelBase
         Request = new RequestViewModel();
         Response = new ResponseViewModel();
         Collections = new CollectionsViewModel();
+        CurrentRequestHistory = new ObservableCollection<RequestHistoryEntry>();
     }
 
     [ObservableProperty] private RequestViewModel request;
@@ -27,6 +28,17 @@ public partial class HttpViewModel : ViewModelBase
     public string SubmitButtonIcon => this.Response.IsLoading ? "◼" : "▶";
 
     public string[] Methods { get; } = ["GET", "PUT", "POST", "DELETE"];
+
+    [ObservableProperty] private ObservableCollection<RequestHistoryEntry> _currentRequestHistory = new();
+
+    public void SetCurrentHistoryEntries(System.Collections.Generic.IReadOnlyList<RequestHistoryEntry> entries)
+    {
+        CurrentRequestHistory.Clear();
+        foreach (var entry in entries)
+        {
+            CurrentRequestHistory.Add(entry);
+        }
+    }
 
     partial void OnResponseChanged(ResponseViewModel value)
     {
