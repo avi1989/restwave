@@ -127,21 +127,26 @@ namespace RestWave.Services
             await command.ExecuteNonQueryAsync();
         }
 
-        public async Task<List<RequestHistoryItem>> GetHistoryAsync(int limit = 100, int offset = 0, 
-            string? urlFilter = null, string? methodFilter = null, string? statusFilter = null)
+        public async Task<List<RequestHistoryItem>> GetHistoryAsync(int limit = 100, int offset = 0,
+            string? urlFilter = null, string? methodFilter = null, string? statusFilter = null,
+            string? collectionNameFilter = null, string? requestNameFilter = null)
         {
             using var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync();
 
             var command = connection.CreateCommand();
             var whereClause = "WHERE 1=1";
-            
+
             if (!string.IsNullOrEmpty(urlFilter))
                 whereClause += " AND Url LIKE @UrlFilter";
             if (!string.IsNullOrEmpty(methodFilter))
                 whereClause += " AND Method = @MethodFilter";
             if (!string.IsNullOrEmpty(statusFilter))
                 whereClause += " AND StatusCode LIKE @StatusFilter";
+            if (!string.IsNullOrEmpty(collectionNameFilter))
+                whereClause += " AND CollectionName = @CollectionNameFilter";
+            if (!string.IsNullOrEmpty(requestNameFilter))
+                whereClause += " AND RequestName = @RequestNameFilter";
 
             command.CommandText = $@"
                 SELECT * FROM RequestHistory 
@@ -151,13 +156,17 @@ namespace RestWave.Services
 
             command.Parameters.AddWithValue("@Limit", limit);
             command.Parameters.AddWithValue("@Offset", offset);
-            
+
             if (!string.IsNullOrEmpty(urlFilter))
                 command.Parameters.AddWithValue("@UrlFilter", $"%{urlFilter}%");
             if (!string.IsNullOrEmpty(methodFilter))
                 command.Parameters.AddWithValue("@MethodFilter", methodFilter);
             if (!string.IsNullOrEmpty(statusFilter))
                 command.Parameters.AddWithValue("@StatusFilter", $"{statusFilter}%");
+            if (!string.IsNullOrEmpty(collectionNameFilter))
+                command.Parameters.AddWithValue("@CollectionNameFilter", collectionNameFilter);
+            if (!string.IsNullOrEmpty(requestNameFilter))
+                command.Parameters.AddWithValue("@RequestNameFilter", requestNameFilter);
 
             var history = new List<RequestHistoryItem>();
             using var reader = await command.ExecuteReaderAsync();

@@ -118,9 +118,19 @@ public partial class HttpViewModel : ViewModelBase
 
         try
         {
-            // Get history for this specific URL
-            var history = await _historyManager.GetHistoryAsync(20, 0, Request.Url);
-            
+            // Get the currently selected request context
+            var selectedNode = Collections.SelectedNode;
+            var currentCollectionName = selectedNode?.CollectionName ?? string.Empty;
+            var currentRequestName = selectedNode?.Title ?? string.Empty;
+
+            // Get history for this specific request (URL + collection + request name)
+            var history = await _historyManager.GetHistoryAsync(
+                20, 0,
+                Request.Url,
+                null, null,
+                string.IsNullOrEmpty(currentCollectionName) ? null : currentCollectionName,
+                string.IsNullOrEmpty(currentRequestName) ? null : currentRequestName);
+
             RequestHistory.Clear();
             foreach (var item in history)
             {
