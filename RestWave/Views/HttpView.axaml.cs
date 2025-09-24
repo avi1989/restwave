@@ -104,7 +104,7 @@ public partial class HttpView : UserControl
                 viewModel.Request.Url);
             foreach (var header in viewModel.Request.HeadersInput.Headers)
             {
-                if (!string.IsNullOrWhiteSpace(header.Value))
+                if (!string.IsNullOrWhiteSpace(header.Value) && !string.IsNullOrWhiteSpace(header.Key))
                 {
                     request.Headers.Add(header.Key, header.Value);
                 }

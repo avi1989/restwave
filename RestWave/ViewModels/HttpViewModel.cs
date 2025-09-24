@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RestWave.Models;
@@ -32,6 +33,16 @@ public partial class HttpViewModel : ViewModelBase
             {
                 await LoadRequestHistoryAsync();
             }
+        };
+
+        // Subscribe to history updates from RequestsManager
+        RequestsManager.HistoryUpdated += async (s, e) =>
+        {
+            // Ensure we're on the UI thread for collection updates
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                await RefreshRequestHistoryAsync();
+            });
         };
     }
 

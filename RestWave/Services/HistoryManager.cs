@@ -259,6 +259,59 @@ namespace RestWave.Services
             await command.ExecuteNonQueryAsync();
         }
 
+        public async Task UpdateRequestNameAsync(string oldCollectionName, string oldRequestName, string newRequestName)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE RequestHistory
+                SET RequestName = @NewRequestName
+                WHERE CollectionName = @CollectionName AND RequestName = @OldRequestName";
+
+            command.Parameters.AddWithValue("@NewRequestName", newRequestName);
+            command.Parameters.AddWithValue("@CollectionName", oldCollectionName);
+            command.Parameters.AddWithValue("@OldRequestName", oldRequestName);
+
+            await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task UpdateCollectionNameAsync(string oldCollectionName, string newCollectionName)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE RequestHistory
+                SET CollectionName = @NewCollectionName
+                WHERE CollectionName = @OldCollectionName";
+
+            command.Parameters.AddWithValue("@NewCollectionName", newCollectionName);
+            command.Parameters.AddWithValue("@OldCollectionName", oldCollectionName);
+
+            await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task MoveRequestToCollectionAsync(string oldCollectionName, string requestName, string newCollectionName)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE RequestHistory
+                SET CollectionName = @NewCollectionName
+                WHERE CollectionName = @OldCollectionName AND RequestName = @RequestName";
+
+            command.Parameters.AddWithValue("@NewCollectionName", newCollectionName);
+            command.Parameters.AddWithValue("@OldCollectionName", oldCollectionName);
+            command.Parameters.AddWithValue("@RequestName", requestName);
+
+            await command.ExecuteNonQueryAsync();
+        }
+
         private async Task CleanupOldHistoryAsync()
         {
             if (_config.MaxHistoryItems <= 0 && _config.HistoryRetentionDays <= 0)

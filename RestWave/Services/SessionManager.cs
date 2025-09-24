@@ -80,7 +80,27 @@ namespace RestWave.Services
             }
             catch (Exception ex)
             {
-                // Log error but don't throw
+                Console.WriteLine($"Failed to save session: {ex.Message}");
+            }
+        }
+        
+        private void SaveSession()
+        {
+            if (!_config.EnableSessionPersistence)
+                return;
+
+            try
+            {
+                _currentSession.LastSaved = DateTime.UtcNow;
+                var json = JsonSerializer.Serialize(_currentSession, new JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
+                });
+                File.WriteAllText(_sessionFilePath, json);
+                _isDirty = false;
+            }
+            catch (Exception ex)
+            {
                 Console.WriteLine($"Failed to save session: {ex.Message}");
             }
         }
@@ -241,7 +261,7 @@ namespace RestWave.Services
             // Save session on dispose if dirty
             if (_isDirty && _config.EnableSessionPersistence)
             {
-                SaveSessionAsync().Wait();
+                SaveSession();
             }
         }
     }
