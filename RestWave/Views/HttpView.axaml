@@ -8,6 +8,8 @@
              xmlns:request1="clr-namespace:RestWave.Views.Request"
              xmlns:local="clr-namespace:RestWave.Views"
              xmlns:components="clr-namespace:RestWave.Views.Components"
+             xmlns:models="clr-namespace:RestWave.Models"
+             xmlns:views="clr-namespace:RestWave.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="RestWave.Views.HttpView"
              x:DataType="viewModels:HttpViewModel">
@@ -15,15 +17,29 @@
         <viewModels:HttpViewModel />
     </Design.DataContext>
     <DockPanel Background="{DynamicResource BackgroundPrimary}">
-        <DockPanel>
-            <SplitView IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="320" VerticalAlignment="Stretch"
-                       HorizontalAlignment="Stretch">
-                <SplitView.Pane>
-                    <Border Classes="Card">
-                        <components:CollectionList DataContext="{Binding Collections}" />
-                    </Border>
-                </SplitView.Pane>
-                <DockPanel HorizontalAlignment="Stretch" Margin="6,0,12,12">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="300" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Collections Panel -->
+            <Border Grid.Column="0" Classes="Card" Margin="12,12,6,12">
+                <components:CollectionList DataContext="{Binding Collections}" />
+            </Border>
+
+            <!-- Collections Splitter -->
+            <GridSplitter Grid.Column="1" 
+                          Width="5" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Stretch"
+                          Background="{DynamicResource BorderLight}" />
+
+            <!-- Main Content Area -->
+            <DockPanel Grid.Column="2" HorizontalAlignment="Stretch" Margin="6,12,6,12">
                     <Border DockPanel.Dock="Top" Classes="Card" Margin="0,0,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📄"
@@ -45,6 +61,11 @@
                                       VerticalAlignment="Center" Margin="0,0,12,0"
                                       SelectionBoxItem="{Binding Request.Method}" ItemsSource="{Binding Methods}" />
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                                <Button Name="BtnHistory" Classes="Icon" Margin="0,0,8,0"
+                                        Click="BtnHistory_OnClick" ToolTip.Tip="Recent Requests">
+                                    <TextBlock Text="🕒" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               FontSize="14" />
+                                </Button>
                                 <Button Name="BtnSave" Classes="Icon" Margin="0,0,8,0"
                                         Click="BtnSave_OnClick" ToolTip.Tip="Save Request" HotKey="Ctrl+S">
                                     <TextBlock Text="💾" VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -66,29 +87,116 @@
 
 
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                <!-- Request/Response Grid -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                        <Border Classes="Card" Grid.Column="0" Margin="0,0,8,0">
-                            <request1:RequestView VerticalAlignment="Stretch" DataContext="{Binding Request}" />
-                        </Border>
-    
-                        <GridSplitter Grid.Column="1" 
-                                      Width="5" 
-                                      HorizontalAlignment="Center" 
-                                      VerticalAlignment="Stretch"
-                                      Background="{DynamicResource BorderLight}" />
-    
-                        <Border Classes="Card" Grid.Column="2" Margin="8,0,0,0">
-                            <response:ResponseView VerticalAlignment="Stretch" DataContext="{Binding Response}" />
-                        </Border>
+                    <Border Classes="Card" Grid.Column="0" Margin="0,0,8,0">
+                        <request1:RequestView VerticalAlignment="Stretch" DataContext="{Binding Request}" />
+                    </Border>
+
+                    <GridSplitter Grid.Column="1" 
+                                  Width="5" 
+                                  HorizontalAlignment="Center" 
+                                  VerticalAlignment="Stretch"
+                                  Background="{DynamicResource BorderLight}" />
+
+                    <Border Classes="Card" Grid.Column="2" Margin="8,0,0,0">
+                        <response:ResponseView VerticalAlignment="Stretch" DataContext="{Binding Response}" />
+                    </Border>
+                </Grid>
+            </DockPanel>
+
+            <!-- History Splitter -->
+            <GridSplitter Grid.Column="3" 
+                          Width="5" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Stretch"
+                          Background="{DynamicResource BorderLight}"
+                          Name="HistorySplitter" />
+
+            <!-- History Panel -->
+            <Border Grid.Column="4" Classes="Card" Margin="6,12,12,12" Name="HistoryPane">
+                <DockPanel>
+                    <!-- History Header -->
+                    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,12">
+                        <TextBlock Grid.Column="0" Text="Request History" Classes="SectionHeader" VerticalAlignment="Center" Margin="0" />
+                        <Button Grid.Column="1" Content="📋" ToolTip.Tip="View All History"
+                                Click="BtnViewAllHistory_OnClick" Classes="Icon" Margin="0,0,4,0" />
+                        <Button Grid.Column="2" Content="✕" ToolTip.Tip="Hide History"
+                                Click="BtnHideHistory_OnClick" Classes="Icon" />
+                    </Grid>
+
+                    <!-- History List -->
+                    <Grid>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ItemsControl Name="RequestHistoryList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:RequestHistoryItem">
+                                        <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                                                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                                                BorderThickness="0,0,0,1"
+                                                Padding="12,8"
+                                                Cursor="Hand"
+                                                PointerPressed="HistoryItem_OnPointerPressed"
+                                                Tag="{Binding}">
+                                            <Border.Styles>
+                                                <Style Selector="Border:pointerover">
+                                                    <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundListMediumBrush}" />
+                                                </Style>
+                                            </Border.Styles>
+                                            <StackPanel Spacing="4">
+                                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                                    <Border Grid.Column="0" 
+                                                            Background="{Binding Method, Converter={x:Static views:MethodColorConverter.Instance}}"
+                                                            CornerRadius="3"
+                                                            Padding="4,2"
+                                                            Margin="0,0,8,0">
+                                                        <TextBlock Text="{Binding Method}" 
+                                                                   Foreground="White"
+                                                                   FontWeight="Bold"
+                                                                   FontSize="10" />
+                                                    </Border>
+                                                    <TextBlock Grid.Column="2" 
+                                                               Text="{Binding StatusCode}" 
+                                                               Foreground="{Binding StatusCode, Converter={x:Static views:StatusCodeColorConverter.Instance}}"
+                                                               FontWeight="Bold"
+                                                               FontSize="11" />
+                                                </Grid>
+                                                <TextBlock Text="{Binding Timestamp, Converter={x:Static views:TimestampConverter.Instance}}"
+                                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                                           FontSize="10" />
+                                                <TextBlock Text="{Binding ResponseTime, Converter={x:Static views:ResponseTimeConverter.Instance}}"
+                                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                                           FontSize="10" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        
+                        <!-- Empty State -->
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                    Name="EmptyHistoryMessage" Spacing="8" Margin="20">
+                            <TextBlock Text="📭" FontSize="32" HorizontalAlignment="Center" 
+                                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                            <TextBlock Text="No history for this request" 
+                                       HorizontalAlignment="Center" 
+                                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                       FontSize="12" />
+                            <TextBlock Text="Make a request to see it here" 
+                                       HorizontalAlignment="Center" 
+                                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                       FontSize="10" />
+                        </StackPanel>
                     </Grid>
                 </DockPanel>
-            </SplitView>
-        </DockPanel>
+            </Border>
+        </Grid>
     </DockPanel>
 </UserControl>

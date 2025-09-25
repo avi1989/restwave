@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using RestWave.Models;
 using RestWave.ViewModels;
 using RestWave.ViewModels.Requests;
@@ -12,11 +14,20 @@ namespace RestWave.Services;
 public class RequestsManager
 {
     private readonly Config config;
+    private readonly HistoryManager historyManager;
+
+    public static event EventHandler? HistoryUpdated;
 
     public RequestsManager()
     {
         var configManager = new ConfigManager();
         this.config = configManager.Current;
+        this.historyManager = new HistoryManager();
+    }
+
+    private static void OnHistoryUpdated()
+    {
+        HistoryUpdated?.Invoke(null, EventArgs.Empty);
     }
 
     public ICollection<Node> GetCollections()
@@ -217,6 +228,11 @@ public class RequestsManager
             if (!File.Exists(sourceFilePath))
                 return false;
 
+            // Get original collection and request name for history update
+            var sourceDirectory = Path.GetDirectoryName(sourceFilePath);
+            var sourceCollectionName = Path.GetFileName(sourceDirectory) ?? string.Empty;
+            var originalRequestName = Path.GetFileNameWithoutExtension(sourceFilePath);
+
             var fileName = Path.GetFileName(sourceFilePath);
             var targetCollectionPath = Path.Combine(this.config.RequestsDirectoryPath!, targetCollectionName);
 
@@ -244,10 +260,26 @@ public class RequestsManager
             }
 
             File.Move(sourceFilePath, targetFilePath);
+
+            // Update history records
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await historyManager.MoveRequestToCollectionAsync(sourceCollectionName, originalRequestName, targetCollectionName);
+                    OnHistoryUpdated();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to update history when moving file {sourceFilePath}: {ex.Message}");
+                }
+            });
+
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Failed to move file {sourceFilePath}: {ex.Message}");
             return false;
         }
     }
@@ -259,7 +291,11 @@ public class RequestsManager
             if (!File.Exists(filePath))
                 return false;
 
+            // Get collection and old request name for history update
             var directory = Path.GetDirectoryName(filePath)!;
+            var collectionName = Path.GetFileName(directory) ?? string.Empty;
+            var oldRequestName = Path.GetFileNameWithoutExtension(filePath);
+
             var extension = Path.GetExtension(filePath);
             var newFilePath = Path.Combine(directory, $"{newName}{extension}");
 
@@ -267,10 +303,26 @@ public class RequestsManager
                 return false; // Don't overwrite existing files
 
             File.Move(filePath, newFilePath);
+
+            // Update history records
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await historyManager.UpdateRequestNameAsync(collectionName, oldRequestName, newName);
+                    OnHistoryUpdated();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to update history when renaming file {filePath}: {ex.Message}");
+                }
+            });
+
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Failed to rename file {filePath}: {ex.Message}");
             return false;
         }
     }
@@ -282,6 +334,7 @@ public class RequestsManager
             if (!Directory.Exists(collectionPath))
                 return false;
 
+            var oldCollectionName = Path.GetFileName(collectionPath);
             var parentDirectory = Path.GetDirectoryName(collectionPath)!;
             var newCollectionPath = Path.Combine(parentDirectory, newName);
 
@@ -289,10 +342,26 @@ public class RequestsManager
                 return false; // Don't overwrite existing directories
 
             Directory.Move(collectionPath, newCollectionPath);
+
+            // Update history records
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await historyManager.UpdateCollectionNameAsync(oldCollectionName, newName);
+                    OnHistoryUpdated();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to update history when renaming collection {collectionPath}: {ex.Message}");
+                }
+            });
+
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Failed to rename collection {collectionPath}: {ex.Message}");
             return false;
         }
     }
@@ -338,6 +407,14 @@ public class RequestsManager
             if (!File.Exists(sourceFilePath) || !Directory.Exists(targetFolderPath))
                 return false;
 
+            // Get original collection and request name for history update
+            var sourceDirectory = Path.GetDirectoryName(sourceFilePath);
+            var sourceCollectionName = Path.GetFileName(sourceDirectory) ?? string.Empty;
+            var originalRequestName = Path.GetFileNameWithoutExtension(sourceFilePath);
+
+            // Get target collection name
+            var targetCollectionName = Path.GetFileName(targetFolderPath) ?? string.Empty;
+
             var fileName = Path.GetFileName(sourceFilePath);
             var targetFilePath = Path.Combine(targetFolderPath, fileName);
 
@@ -358,10 +435,26 @@ public class RequestsManager
             }
 
             File.Move(sourceFilePath, targetFilePath);
+
+            // Update history records
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await historyManager.MoveRequestToCollectionAsync(sourceCollectionName, originalRequestName, targetCollectionName);
+                    OnHistoryUpdated();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to update history when moving file {sourceFilePath} to folder {targetFolderPath}: {ex.Message}");
+                }
+            });
+
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Failed to move file {sourceFilePath} to folder {targetFolderPath}: {ex.Message}");
             return false;
         }
     }
