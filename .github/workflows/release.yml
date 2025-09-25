@@ -124,3 +124,36 @@ jobs:
       with:
         files: |
           ${{ runner.os == 'Windows' && './publish/RestWave-Setup-' || './publish/' }}${{ runner.os == 'Windows' && github.ref_name || matrix.artifact-name }}${{ runner.os == 'Windows' && '.exe' || '.zip' }}
+
+  build-macos:
+    runs-on: macos-latest
+    needs: create-release
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Install create-dmg
+        run: brew install create-dmg
+      - name: Publish macOS
+        run: dotnet publish RestWave/RestWave.csproj -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true -o publish/RestWave-macos-x64
+      - name: Create DMG
+        run: |
+          create-dmg \
+            --volname "RestWave" \
+            --window-pos 200 120 \
+            --window-size 400 300 \
+            --app-drop-link 250 125 \
+            --background-color "#ffffff" \
+            "publish/RestWave-macos-x64/RestWave.dmg" \
+            "publish/RestWave-macos-x64"
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: RestWave-macos
+          path: publish/RestWave-macos-x64/RestWave.dmg
+      - name: Create Release Artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          files: publish/RestWave-macos-x64/RestWave.dmg
