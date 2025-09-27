@@ -2,7 +2,7 @@ name: Release
 on:
   push:
     tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+*"
 permissions:
   contents: write
 
@@ -81,9 +81,14 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore RestWave/RestWave.csproj
 
-    - name: Build and publish
-      run: dotnet publish RestWave/RestWave.csproj -c Release -r ${{ matrix.runtime }} --self-contained false /p:PublishReadyToRun=true /p:Version=${{ github.ref_name }} /p:AssemblyVersion=${{ github.ref_name }}.0 /p:FileVersion=${{ github.ref_name }}.0 /p:TreatWarningsAsErrors=true -o ./publish/${{ matrix.artifact-name }}
+    - name: Build and publish (Self Contained)
+      if: matrix.os == 'macos-latest'
+      run: dotnet publish RestWave/RestWave.csproj -c Release -r ${{ matrix.runtime }} --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishReadyToRun=true /p:Version=${{ github.ref_name }} /p:AssemblyVersion=${{ github.ref_name }} /p:FileVersion=${{ github.ref_name }} /p:TreatWarningsAsErrors=true -o ./publish/${{ matrix.artifact-name }}
 
+    - name: Build and publish
+      if: matrix.os != 'macos-latest'
+      run: dotnet publish RestWave/RestWave.csproj -c Release -r ${{ matrix.runtime }} --self-contained false /p:PublishReadyToRun=true /p:Version=${{ github.ref_name }} /p:AssemblyVersion=${{ github.ref_name }}.0 /p:FileVersion=${{ github.ref_name }}.0 /p:TreatWarningsAsErrors=true -o ./publish/${{ matrix.artifact-name }}
+    
     - name: Zip published files (Windows)
       if: runner.os == 'Windows'
       run: |
