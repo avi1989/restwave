@@ -144,7 +144,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [ ] Import/Export collections (Postman, Insomnia formats)
 - [ ] Environment variables support
-- [ ] Request & response history
 - [ ] Tabbed Interface
 - [ ] GraphQL support
 - [ ] WebSocket testing
