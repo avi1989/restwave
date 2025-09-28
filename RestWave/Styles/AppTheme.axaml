@@ -118,6 +118,17 @@
             <DropShadowEffect Color="Black" Opacity="0.04" OffsetX="0" OffsetY="1" BlurRadius="3" />
         </Setter>
     </Style>
+    
+    <Style Selector="Border.SmallCard">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderLight}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="Effect">
+            <DropShadowEffect Color="Black" Opacity="0.04" OffsetX="0" OffsetY="1" BlurRadius="3" />
+        </Setter>
+    </Style>
 
     <!-- Section Header Style -->
     <Style Selector="TextBlock.SectionHeader">

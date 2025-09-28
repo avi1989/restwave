@@ -27,20 +27,20 @@
             </Grid.ColumnDefinitions>
 
             <!-- Collections Panel -->
-            <Border Grid.Column="0" Classes="Card" Margin="12,12,6,12">
+            <Border Grid.Column="0" Classes="Card" Margin="12,0,6,12">
                 <components:CollectionList DataContext="{Binding Collections}" />
             </Border>
 
             <!-- Collections Splitter -->
             <GridSplitter Grid.Column="1" 
-                          Width="5" 
+                          Width="1" 
                           HorizontalAlignment="Center" 
                           VerticalAlignment="Stretch"
                           Background="{DynamicResource BorderLight}" />
 
             <!-- Main Content Area -->
-            <DockPanel Grid.Column="2" HorizontalAlignment="Stretch" Margin="6,12,6,12">
-                    <Border DockPanel.Dock="Top" Classes="Card" Margin="0,0,0,0">
+            <DockPanel Grid.Column="2" HorizontalAlignment="Stretch" Margin="6,0,6,12">
+                    <Border DockPanel.Dock="Top" Classes="SmallCard" Margin="0,0,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📄"
                                        VerticalAlignment="Center"
@@ -100,7 +100,7 @@
                     </Border>
 
                     <GridSplitter Grid.Column="1" 
-                                  Width="5" 
+                                  Width="1" 
                                   HorizontalAlignment="Center" 
                                   VerticalAlignment="Stretch"
                                   Background="{DynamicResource BorderLight}" />
@@ -120,7 +120,7 @@
                           Name="HistorySplitter" />
 
             <!-- History Panel -->
-            <Border Grid.Column="4" Classes="Card" Margin="6,12,12,12" Name="HistoryPane">
+            <Border Grid.Column="4" Classes="Card" Margin="6,0,12,12" Name="HistoryPane">
                 <DockPanel>
                     <!-- History Header -->
                     <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,12">
