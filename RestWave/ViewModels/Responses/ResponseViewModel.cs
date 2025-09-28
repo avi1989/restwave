@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Threading;
+using Avalonia.Threading;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using RestWave.Extensions;
@@ -20,6 +21,8 @@ public partial class ResponseViewModel : ViewModelBase
 
     [ObservableProperty] private string _body = string.Empty;
 
+    public TextDocument BodyDocument { get; } = new();
+
     [ObservableProperty] private ObservableCollection<string> _groupedKeys = new();
 
     [ObservableProperty] private string _selectedGroup = "";
@@ -29,6 +32,20 @@ public partial class ResponseViewModel : ViewModelBase
     [ObservableProperty] private Dictionary<string, string> _groupedResponses = new Dictionary<string, string>();
 
     public ObservableCollection<string> StreamLines => _streamLines;
+
+    partial void OnBodyChanged(string value)
+    {
+        // Keep TextEditor in sync when Body changes
+        // Ensure updates to TextDocument happen on the UI thread
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            BodyDocument.Text = value ?? string.Empty;
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(() => BodyDocument.Text = value ?? string.Empty);
+        }
+    }
 
     public void ChangeSelectedGroup(string group)
     {
@@ -42,7 +59,6 @@ public partial class ResponseViewModel : ViewModelBase
         {
             SelectedGroupDocument = string.Empty;
         }
-
     }
 
     public void AppendStreamLine(string line)
@@ -76,7 +92,8 @@ public partial class ResponseViewModel : ViewModelBase
                 {
                     if (GroupedResponses.TryGetValue(property.Name, out var value))
                     {
-                        if (property.Value.ToString().Trim().StartsWith("{") && JsonValidator.TryValidateJson(property.Value.ToString(), out var jsonResult))
+                        if (property.Value.ToString().Trim().StartsWith("{") &&
+                            JsonValidator.TryValidateJson(property.Value.ToString(), out var jsonResult))
                         {
                             if (jsonResult == null)
                             {
@@ -93,7 +110,6 @@ public partial class ResponseViewModel : ViewModelBase
                             GroupedResponses[property.Name] += "\n";
                             GroupedResponses[property.Name] += "```";
                             GroupedResponses[property.Name] += "\n\n";
-
                         }
                         else
                         {
