@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -146,6 +147,20 @@ public partial class HttpView : UserControl
                 viewModel.Response.IsStreaming = false;
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 responseSize = System.Text.Encoding.UTF8.GetByteCount(content);
+
+                try
+                {
+                    var jsonDocument = JsonDocument.Parse(content);
+                    content = JsonSerializer.Serialize(jsonDocument, new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                    });
+                }
+                catch (Exception)
+                {
+                    // Ignore JSON parsing errors, just display the raw content
+                }
+
                 responseBody = content;
                 
                 var bodyContent = response.IsSuccessStatusCode
