@@ -13,7 +13,16 @@
     </Design.DataContext>
 
     <DockPanel>
-        <TextBlock Classes="SectionHeader" Text="Response" DockPanel.Dock="Top" />
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Classes="SectionHeader" Text="Response" />
+            <Button Grid.Column="1" x:Name="BtnCopy"
+                    Classes="Icon"
+                    Click="BtnCopy_OnClick"
+                    ToolTip.Tip="Copy Response"
+                    IsVisible="{Binding ShouldShowCopyButton}">
+                <TextBlock Text="📋" FontSize="14" />
+            </Button>
+        </Grid>
         <TabControl Classes="Modern">
             <TabItem Header="Body">
                 <Grid>

@@ -71,6 +71,7 @@ public partial class ResponseViewModel : ViewModelBase
             IsTruncated = isTruncated;
             TruncationMessage = truncationMessage;
             BodyDocument.Text = text;
+            OnPropertyChanged(nameof(ShouldShowCopyButton));
         }
 
         if (Dispatcher.UIThread.CheckAccess())
@@ -205,8 +206,11 @@ public partial class ResponseViewModel : ViewModelBase
         {
             _isStreaming = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ShouldShowCopyButton));
         }
     }
+
+    public bool ShouldShowCopyButton => !string.IsNullOrEmpty(this.Body) && !this.IsStreaming;
 
 
     private CancellationTokenSource? _cancellationTokenSource;

@@ -10,10 +10,20 @@ namespace RestWave.Views.Response;
 
 public partial class ResponseView : UserControl
 {
-
-
     public ResponseView()
     {
         InitializeComponent();
+    }
+
+    private async void BtnCopy_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+        if (clipboard == null) return;
+
+        var vm = DataContext as ResponseViewModel;
+        if (vm == null) return;
+
+        var text = vm.BodyDocument.Text ?? string.Empty;
+        await clipboard.SetTextAsync(text);
     }
 }
