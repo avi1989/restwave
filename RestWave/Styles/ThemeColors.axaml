@@ -29,6 +29,11 @@
             <!-- Light Mode Border Colors -->
             <SolidColorBrush x:Key="BorderLight">#E2E8F0</SolidColorBrush>
             <SolidColorBrush x:Key="BorderMedium">#CBD5E1</SolidColorBrush>
+
+            <!-- Warning Banner Colors -->
+            <SolidColorBrush x:Key="WarningBackground">#FFF3CD</SolidColorBrush>
+            <SolidColorBrush x:Key="WarningBorder">#FFECB5</SolidColorBrush>
+            <SolidColorBrush x:Key="WarningText">#664D03</SolidColorBrush>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
             <!-- Primary Colors (same for both themes) -->
@@ -59,6 +64,11 @@
             <!-- Dark Mode Border Colors -->
             <SolidColorBrush x:Key="BorderLight">#334155</SolidColorBrush>
             <SolidColorBrush x:Key="BorderMedium">#475569</SolidColorBrush>
+
+            <!-- Warning Banner Colors -->
+            <SolidColorBrush x:Key="WarningBackground">#332701</SolidColorBrush>
+            <SolidColorBrush x:Key="WarningBorder">#664D03</SolidColorBrush>
+            <SolidColorBrush x:Key="WarningText">#F59E0B</SolidColorBrush>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

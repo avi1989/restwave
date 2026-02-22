@@ -12,6 +12,10 @@ namespace RestWave.ViewModels.Responses;
 
 public partial class ResponseViewModel : ViewModelBase
 {
+    private const int LargeResponseThreshold = 1 * 1024 * 1024; // 1 MB
+    private const int TruncationThreshold = 5 * 1024 * 1024; // 5 MB
+    private const int TruncationDisplaySize = 1 * 1024 * 1024; // 1 MB
+
     [ObservableProperty] private string _statusCode = string.Empty;
 
     private ObservableCollection<string> _streamLines = new();
@@ -20,6 +24,12 @@ public partial class ResponseViewModel : ViewModelBase
     [ObservableProperty] private bool _isLoading;
 
     [ObservableProperty] private string _body = string.Empty;
+
+    [ObservableProperty] private bool _isLargeResponse;
+
+    [ObservableProperty] private bool _isTruncated;
+
+    [ObservableProperty] private string _truncationMessage = string.Empty;
 
     public TextDocument BodyDocument { get; } = new();
 
@@ -35,15 +45,41 @@ public partial class ResponseViewModel : ViewModelBase
 
     partial void OnBodyChanged(string value)
     {
-        // Keep TextEditor in sync when Body changes
-        // Ensure updates to TextDocument happen on the UI thread
-        if (Dispatcher.UIThread.CheckAccess())
+        var text = value ?? string.Empty;
+        var byteLength = System.Text.Encoding.UTF8.GetByteCount(text);
+
+        var isLarge = byteLength > LargeResponseThreshold;
+        var isTruncated = byteLength > TruncationThreshold;
+        string truncationMessage;
+
+        if (isTruncated)
         {
-            BodyDocument.Text = value ?? string.Empty;
+            var sizeMb = byteLength / (1024.0 * 1024.0);
+            truncationMessage = $"Response too large to display fully ({sizeMb:F1} MB). Showing first 1 MB.";
+            text = text.Substring(0, FindCharIndexForByteLimit(text, TruncationDisplaySize)) + "\n... [truncated]";
         }
         else
         {
-            Dispatcher.UIThread.Post(() => BodyDocument.Text = value ?? string.Empty);
+            truncationMessage = string.Empty;
+        }
+
+        // All observable property changes and BodyDocument updates must happen on the
+        // UI thread — PropertyChanged handlers in the view directly modify UI controls.
+        void Apply()
+        {
+            IsLargeResponse = isLarge;
+            IsTruncated = isTruncated;
+            TruncationMessage = truncationMessage;
+            BodyDocument.Text = text;
+        }
+
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            Apply();
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(Apply);
         }
     }
 
@@ -136,6 +172,18 @@ public partial class ResponseViewModel : ViewModelBase
             default:
                 break;
         }
+    }
+
+    private static int FindCharIndexForByteLimit(string text, int maxBytes)
+    {
+        int byteCount = 0;
+        for (int i = 0; i < text.Length; i++)
+        {
+            byteCount += System.Text.Encoding.UTF8.GetByteCount(text, i, 1);
+            if (byteCount > maxBytes)
+                return i;
+        }
+        return text.Length;
     }
 
     public void ClearStreamLines()
